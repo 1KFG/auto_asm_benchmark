@@ -1,6 +1,5 @@
-# auto_asm_benchmark
-
-Benchmarking framework for automated fungal **genome assembly + QC** pipelines.
+# Automatic Assembly Benchmarking Boom
+Assembly workflow benchmarking system to standardize and compare tools for assembling genomes automatically from short and long read and hybrids, provide performance timing, resource usage, and quality of assemblies achieved on comparable datasets.
 
 Two independent benchmark dimensions (see [docs/design-decisions.md](docs/design-decisions.md) ADR-001):
 
