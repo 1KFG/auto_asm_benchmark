@@ -1,0 +1,239 @@
+# Tool (pipeline-under-test) matrix
+# Schema: schema/tool_matrix.schema.json
+# Declarative list of pipelines benchmarked as atomic units.
+# Start small; extend freely. Each entry pins exact versions.
+schema_version: "1.0"
+
+pipelines:
+  - id: aaftf
+    name: "AAFTF"
+    description: "Assembly and Annotation For The Fungi; conda/pixi shell workflow."
+    type: "conda"              # nextflow | snakemake | conda
+    execution:
+      env_management: "pixi"     # AAFTF ships a pixi env; conda also supported
+      env_pin: "adapters/aaftf/pixi.lock"   # AAFTF pixi.lock, 2026-08-18 (relocked: +fastqc,flye,racon,hifiasm,kraken2,gfatools)
+      executable: "aaftf.pl"
+      adapter: "adapters/aaftf/run.sh"     # fixed contract wrapper
+    pins: {}
+    params:
+      default: "configs/params/aaftf.default.yaml"   # canonical param set
+    databases:
+      - name: "BUSCO lineage fungi_odb10"
+        version: "2020-09-10"   # /srv/projects/db/BUSCO/v10/lineages/fungi_odb10
+      - name: "Kraken2 (conceptual; AAFTF uses its own refs)"
+        version: "genbank-k31.lca.json.gz (AAFTF_DB, not kraken2)"
+
+  - id: nf_aaftf
+    name: "stajichlab/nf_aaftf"
+    description: "Nextflow DSL2 assembly + cleanup for short-read (Illumina) genomes, running exclusively inside the AAFTF container: fastp/bbduk trim, phiX/contam filter, SPAdes assembly, fcs_screen/vecscreen, optional FCS-GX/sourpurge purge, POLCA polish, depth back-mapping inbuilt QC. Port of the AAFTF shell pipeline."
+    type: "nextflow"
+    execution:
+      source: "external"       # call external published workflow, DO NOT vendor
+      repo: "https://github.com/stajichlab/nf_aaftf"
+      commit: "03dfdd5393d8732fd5875ca4d4625a50a4bc436f"   # 2026-08-17
+      revision: "main"
+      env_management: "container"
+      container_pin: "ghcr.io/stajichlab/aaftf@sha256:f7fd8ed3b38f9ef86ddd8fdada703bab43e618b22ec95585f9b480d1911cceb4"   # rebuilt 2026-08-18 (+fastqc,flye,racon,hifiasm,kraken2, ncbi-fcs-gx 0.5.5)
+      executable: "main.nf"
+      adapter: "adapters/nf_aaftf/run.sh"
+      tools: ["aaftf", "fastp", "trimmomatic", "bbduk.sh", "spades.py", "megahit", "unicycler", "dipspades", "fcs_screen", "fcs_gx", "vecscreen", "sourpurge", "polca.sh", "pilon", "racon", "nextpolish", "bowtie2", "bwa", "minimap2"]
+    pins: {}
+    params:
+      default: "configs/params/nf_aaftf.default.yaml"
+    databases:
+      - name: "BUSCO lineage fungi_odb10"
+        version: "2020-09-10"   # /srv/projects/db/BUSCO/v10/lineages/fungi_odb10
+      - name: "phiX + contam/vector screening DB"
+        version: "AAFTF_DB NC_001422.fna (phiX174) + contam_in_{prok,euks}.fa"
+      - name: "NCBI FCS_Screen adaptor DB"
+        version: "fcs-adaptor 0.5.5 (av_screen_x bundled DB)"
+      - name: "NCBI FCS-GX gxdb"
+        version: "v0.3.0-151-g9aad15db, build 2023-01-24"   # /srv/projects/db/ncbi-fcs/0.5.0/gxdb
+
+  - id: mpgap
+    name: "fmalmeida/MpGAP"
+    description: "Generic multi-platform de novo genome assembly pipeline (Nextflow DSL2): Illumina-only, long-reads-only (ONT/PacBio), or hybrid modes. Wraps hifiasm, canu, flye, raven, shasta, wtdbg2, haslr, unicycler, spades, shovill, megahit + polishers (nanopolish/medaka/gcpp/polypolish/pilon) + quast/busco/multiqc QC. Pinned by commit hash + container digest."
+    type: "nextflow"
+    execution:
+      source: "external"       # call external published workflow, DO NOT vendor
+      repo: "https://github.com/fmalmeida/MpGAP"
+      commit: "436c96ac9bbbe69105795824d24a221840ea9485"   # release v3.2.3, 2026-01-22
+      revision: "master"
+      env_management: "container"
+      container_pin: "fmalmeida/mpgap@sha256:d0c421d2caa6bfb6fbaad36b4182746485f750c82524b7b738b0d190505c8098"  # v3.2 image (matches MpGAP conf/docker.config)
+      executable: "main.nf"
+      adapter: "adapters/mpgap/run.sh"
+      tools: ["hifiasm", "canu", "flye", "raven", "shasta", "wtdbg2", "haslr", "unicycler", "spades.py", "shovill", "megahit", "nanopolish", "medaka", "gcpp", "polypolish", "pilon", "quast", "busco", "multiqc"]
+    pins: {}
+    params:
+      default: "configs/params/mpgap.default.yaml"
+    databases:
+      - name: "BUSCO lineage fungi_odb10"
+        version: "2020-09-10"   # /srv/projects/db/BUSCO/v10/lineages/fungi_odb10
+      - name: "quast BUSCO DBs (fungi/eukaryota)"
+        version: "bundled with quast 5.3.0 eval container"
+
+  - id: egap
+    name: "iPsychonaut/EGAP"
+    description: "Entheome Genome Assembly Pipeline — Python/conda orchestrator (EGAP.py) that auto-selects assemblers (MaSuRCA/Flye/SPAdes/hifiasm) by read type, polishes (racon/pilon/medaka), curates, decontaminates (Tiara) and runs BUSCO/QUAST QC. Ships an internal Nextflow partner (draft_assembly.nf) but is driven from the conda CLI; assembled via conda subprocesses. Pinned to bioconda egap==3.4.1 (git tag v3.4.1, which uses CSV input schema; HEAD migrated to TSV post-3.4.1)."
+    type: "conda"
+    execution:
+      source: "external"       # call external published workflow, DO NOT vendor
+      repo: "https://github.com/iPsychonaut/EGAP"
+      commit: "cf28ffc6ccac4274ad82629d6a3fd86fe723fad2"   # git tag v3.4.1 (2026-05-27); = bioconda egap 3.4.1
+      revision: "main"
+      env_management: "conda"
+      env_pin: "egap==3.4.1"    # bioconda package version (matches tag commit); conda env lock TBD in adapters/egap/
+      executable: "EGAP"        # on PATH from `conda install -c bioconda egap`
+      adapter: "adapters/egap/run.sh"
+      tools: ["egap", "masurca", "flye", "spades", "hifiasm", "fastqc", "quast", "compleasm", "bwa", "racon", "pilon", "medaka", "tiara"]
+    pins: {}
+    params:
+      default: "configs/params/egap.default.yaml"
+    databases:
+      - name: "BUSCO lineage fungi_odb10"
+        version: "2020-09-10"   # /srv/projects/db/BUSCO/v10/lineages/fungi_odb10
+      - name: "Tiara model weights (fungal/bacterial/archaeal/viral)"
+        version: "tiara bundled model weights (egap 3.4.1 env)"
+
+  # --- Phase-1 reference matrix: individual toolchains (1-2 per read type) ---
+  # These represent "DIY" pipelines constructed from canonical tools, each
+  # assembled into scenarios in configs/params/*.yaml. Digests PENDING until first run.
+
+  - id: spades_pipeline
+    name: "SPAdes short-read assembly + Pilon"
+    type: "conda"
+    description: "Illumina/DNBSEQ single-genome assembly with polishing. Representative short-read assembler."
+    execution:
+      env_management: "container"
+      container_pin: "ghcr.io/stajichlab/aaftf@sha256:f7fd8ed3b38f9ef86ddd8fdada703bab43e618b22ec95585f9b480d1911cceb4"   # unified AAFTF digest (2026-08-18 rebuild)
+      executable: "spades.py"
+      adapter: "adapters/spades_pipeline/run.sh"
+      tools: ["spades", "pilon", "fastp", "fastqc"]
+    pins: {}
+    params:
+      default: "configs/params/spades.default.yaml"
+    databases:
+      - name: "none (assembler only)"
+
+  - id: flye_pipeline
+    name: "Flye long-read assembly + polishing chain"
+    type: "conda"
+    description: "HiFi / Nanopore single-genome assembly (flye + racon/medaka + nextpolish)."
+    execution:
+      env_management: "container"
+      container_pin: "ghcr.io/stajichlab/aaftf@sha256:f7fd8ed3b38f9ef86ddd8fdada703bab43e618b22ec95585f9b480d1911cceb4"   # flye/racon step in AAFTF; medaka/nextpolish in separate biocontainers (see pins)
+      executable: "flye"
+      adapter: "adapters/flye_pipeline/run.sh"
+      tools: ["flye", "minimap2", "samtools", "racon", "medaka", "nextpolish"]
+    pins:
+      medaka: "quay.io/biocontainers/medaka@sha256:18d5d73aa7f0aa70d0f623c4d34ce83ca791ba9c14c751bb3ed5d3452a8fb4c3"        # 2.2.2
+      nextpolish: "quay.io/biocontainers/nextpolish@sha256:b44db193cb1823f3465f621125abd52aa343570374f6ac6274829c3fcf5b52fb"  # 1.4.1
+    params:
+      default: "configs/params/flye.default.yaml"
+    databases:
+      - name: "none (assembler only)"
+
+  - id: hifiasm_pipeline
+    name: "hifiasm HiFi assembly"
+    type: "conda"
+    description: "HiFi-only assembler with haplotype resolution (-1 for haploid, default for diploid)."
+    execution:
+      env_management: "container"
+      container_pin: "ghcr.io/stajichlab/aaftf@sha256:f7fd8ed3b38f9ef86ddd8fdada703bab43e618b22ec95585f9b480d1911cceb4"   # unified AAFTF digest (hifiasm 0.25.0)
+      executable: "hifiasm"
+      adapter: "adapters/hifiasm_pipeline/run.sh"
+      tools: ["hifiasm", "gfa2fa", "samtools"]
+    pins: {}
+    params:
+      default: "configs/params/hifiasm.default.yaml"
+    databases:
+      - name: "none (assembler only)"
+
+  - id: fastp_kraken_trim
+    name: "QC/trim + contamination screening toolkit"
+    type: "conda"
+    description: "Standard QC layer used as standalone pipeline: fastp/bbduk trim + Kraken2 screen + fastqc."
+    execution:
+      env_management: "container"
+      container_pin: "ghcr.io/stajichlab/aaftf@sha256:f7fd8ed3b38f9ef86ddd8fdada703bab43e618b22ec95585f9b480d1911cceb4"   # unified AAFTF digest (kraken2 2.17.1 + fastqc 0.12.1)
+      adapter: "adapters/qc_screen/run.sh"
+      tools: ["fastp", "bbduk.sh", "fastqc", "kraken2", "kraken2-build"]
+    pins: {}
+    params:
+      default: "configs/params/qc_screen.default.yaml"
+    databases:
+      - name: "Kraken2 standard or custom fungal/bacteria/viral DB"
+        version: "k2_standard_20260226"   # /srv/projects/db/kraken2/k2_standard_20260226
+
+# Harness evaluation tools (NOT pipelines under test).
+# Used to score every produced assembly uniformly, independent of the
+# pipeline's own cleanup stage (ADR-012). Pins resolved 2026-08-16 from
+# quay.io/biocontainers latest active tags (digest-form pins).
+eval_tools:
+  - id: quast
+    role: contiguity
+    container_pin: "quay.io/biocontainers/quast@sha256:a8d5771c90e4fb6daf32885c56ccece7523344c4e7cd02aa1601a75dff885c22"
+    version: "5.3.0--py313pl5321h5ca1c30_2"
+    notes: "contiguity/correctness vs truth (metrics Family 1)"
+  - id: busco
+    role: completeness
+    container_pin: "quay.io/biocontainers/busco@sha256:d55ad622a5cafcd63c42fc309108688ab255bb9586ee756a5149e249d418c8bd"
+    version: "6.1.0--pyhdfd78af_1"
+    databases:
+      - { name: "BUSCO lineage fungi_odb10", version: "2020-09-10" }   # /srv/projects/db/BUSCO/v10/lineages/fungi_odb10
+  - id: minimap2
+    role: contamination_oracle
+    container_pin: "quay.io/biocontainers/minimap2@sha256:f7e4a9a17912eea542500988ee96013e37a887b3746673636f2773cc81052590"
+    version: "2.31--h118bc1c_0"
+    notes: "align produced assembly to declared contaminant ref(s) — oracle (ADR-012)"
+  - id: samtools
+    role: coverage
+    container_pin: "quay.io/biocontainers/samtools@sha256:23cda33a3a42125872766df9aaf1d2db67cdb8c85314b793465188435af31ba6"
+    version: "1.23.1--ha83d96e_0"
+    notes: "read mapping stats + per-base coverage (metrics Family 3)"
+  - id: fcs_screen
+    role: contamination_screen
+    container_pin: "file:///bigdata/stajichlab/shared/lib/AAFTF_DB/fcs-adaptor.0.5.5.sif@sha256:c508ad7335ff0792ee939c39b6f646a12cd2365049d7ce2269da68063faa73e3"   # == NCBI FTP latest fcs-adaptor.sif (2025-03-18)
+    version: "v0.5.5"
+    notes: "NCBI assembly contamination screen — general (non-oracle) screen on produced assembly (av_screen_x)"
+  - id: fcs-gx
+    role: contamination_screen
+    container_pin: "ghcr.io/stajichlab/aaftf@sha256:f7fd8ed3b38f9ef86ddd8fdada703bab43e618b22ec95585f9b480d1911cceb4"   # ncbi-fcs-gx 0.5.5 (gx binary) inside AAFTF container
+    version: "v0.5.5"
+    databases:
+      - { name: "NCBI FCS-GX gxdb", version: "v0.3.0-151-g9aad15db, build 2023-01-24" }   # /srv/projects/db/ncbi-fcs/0.5.0/gxdb
+    notes: "NCBI protein-based contamination screen — general (non-oracle) screen on produced assembly; run gx with --db gxdb"
+  - id: kraken2-eval
+    role: contamination_screen
+    container_pin: "quay.io/biocontainers/kraken2@sha256:3fc4bff398ade0eba6674cc60d1de4879a26ec0e8f0ef0c27dc8decbed167db4"
+    version: "2.1.5--pl5321h077b44d_0"
+    databases:
+      - { name: "Kraken2 eval DB (fungal+bacterial+viral+phix)", version: "k2_standard_20260226" }   # /srv/projects/db/kraken2/k2_standard_20260226
+    notes: "contig-level classification of produced assembly"
+
+# Read simulators used ONLY by the dataset generator (not pipelines, not eval).
+sim_tools:
+  - id: art
+    role: illumina
+    container_pin: "quay.io/biocontainers/art@sha256:ab044ce2994ce719c71f28525cba596c355299427e15dce039fdc061570a39ee"
+    version: "3.19.15--1"
+    notes: "Illumina paired-end read simulation (art_illumina)"
+  - id: badread
+    role: ont
+    container_pin: "quay.io/biocontainers/badread@sha256:7aa10f4f12c3172ce1657966ce82b882a16319a2032c47fa6489af5cf5bdc80f"
+    version: "0.4.2--pyhdfd78af_0"
+    notes: "ONT read simulation (error model)"
+  - id: pbsim3
+    role: hifi
+    container_pin: "quay.io/biocontainers/pbsim3@sha256:70d2ee306d7dec472c45a0b4e121418f64230fecd5263ed5f0abe36d9cacff6f"
+    version: "3.0.5--h9948957_2"
+    notes: "HiFi / long-read simulation (P6C4 model) — cryneo HiFi contamination family"
+
+review_notes:
+  - "All PENDING pins (container digests, env lockfiles, DB versions, workflow commit hashes) MUST be resolved before a benchmark run is considered reproducible. Validation warns on any remaining PENDING."
+  - "Add future pipelines (e.g., shasta, canu, MEGAHIT, masurca) as new entries here; the harness and adapters are generic."
+  - "eval_tools are scored uniformly across ALL pipelines, whether or not the pipeline itself ships a cleanup stage (ADR-012). FCS_screen/FCS-GX provide the general screen; minimap2 against the declared spike provides the oracle."
+  - "sim_tools (art, badread) exist solely for the dataset generator; they do not participate in benchmarking or scoring."
+  - "2026-08-18: AAFTF container rebuilt (ghcr.io/stajichlab/aaftf@sha256:f7fd8ed3...): added fastqc 0.12.1, flye 2.9.6 (py310), racon 1.5.0, hifiasm 0.25.0, kraken2 2.17.1 (+kraken2-build), gfatools 0.5.5 (provides gfa2fa); contains ncbi-fcs-gx 0.5.5 (gx binary). AAFTF --version -> 0.0.0.dev0+gf9d9adf. nf_aaftf + all four phase-1 pipelines + the fcs-gx eval tool now pin to this single digest."
+  - "medaka (2.2.2) and nextpolish (1.4.1) are NOT in the AAFTF image; flye_pipeline runs them from separate quay.io/biocontainers digests (see flye_pipeline.pins). gfa2fa comes from gfatools 0.5.5 (in the AAFTF image); hifiasm_pipeline adapter uses 'gfatools gfa2fa'."

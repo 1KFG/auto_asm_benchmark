@@ -216,3 +216,27 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- auto_asm_benchmark specific ---
+# Nextflow
+.nextflow/
+work/
+*.trace
+*.log
+results-test/
+
+# Apptainer/Singularity image cache (content-addressed; pins live in tool_matrix.yaml)
+containers/sifs/
+*.sif
+
+# GCS staged/downloaded data (hot tier) — never commit data
+// datasets/staged
+refs.local/
+datasets/staged/
+assets/refs/
+assets/hifi_profile/
+results/
+
+# local scratch during dataset generation
+local_staging/
+*.log
