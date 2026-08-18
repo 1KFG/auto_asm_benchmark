@@ -241,8 +241,12 @@ results/
 local_staging/
 *.log
 
-# generated dataset reads (frozen work-unit definitions live in datasets/*.yaml)
-datasets/sim/
+# generated dataset reads (frozen work-unit definitions live in datasets/*.yaml,
+# per-run provenance in datasets/sim/*/metadata.yaml)
+datasets/sim/*
+!datasets/sim/*/
+datasets/sim/*/*
+!datasets/sim/*/metadata.yaml
 
 # Nextflow / SLURM run artifacts
 logs/

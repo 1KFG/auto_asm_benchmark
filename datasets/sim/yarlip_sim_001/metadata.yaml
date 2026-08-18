@@ -1,0 +1,46 @@
+schema_version: '1.0'
+dataset_id: yarlip__illumina__med__high__none__haploid__full
+genome: yarlip
+technology: illumina
+coverage: medium
+coverage_targets:
+  coverage_x: 30
+quality: high
+degradation: []
+contamination: {}
+ploidy:
+  expected: haploid
+  actual: haploid
+  note: True haploid yeast; control dataset.
+subset:
+  mode: full
+source_reads:
+  type: simulated
+  accessions: []
+  generator: PENDING
+  seed: 20260801
+notes: 'Quality-dimension control: clean short-read data at medium coverage, ART-simulated
+  deterministically from the truth reference so the source is exact and reproducible.
+  Formerly declared real_sra/yari_clean at the pre-ADR-013 cleanup stage; corrected
+  to simulated (ADR-015 yarlip_sim_001).'
+folder_id: yarlip_sim_001
+testset_version: 2026.08.1
+seed: 20260801
+read_layout: paired
+coverage_x: 30
+generator:
+  controller_version: 0.1.0
+  simulators:
+    art_illumina: 3.19.15
+    pbsim: 3.0.5-sample
+  hifi_profile_id: null
+files:
+- path: reads/yarlip_sim_001_R1.fastq.gz
+  sha256: ccad5e6392c6bad46079f21b07dcaf30f09b5859d0f0e6ce1b8b111206ad0393
+  size: 207065901
+- path: reads/yarlip_sim_001_R2.fastq.gz
+  sha256: 19421cf5ef90ae33b9b8a584e09a94b772abeebaedfb351d200bce189ecfb85e
+  size: 216602973
+- path: refs/yarlip_sim_001.truth.fa
+  sha256: aa908e0bed46e91567674018a9d5298754f410a2acae0f7af75fbcb0cca3c58c
+  size: 20756717

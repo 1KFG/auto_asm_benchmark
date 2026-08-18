@@ -1,0 +1,51 @@
+schema_version: '1.0'
+dataset_id: cryneo__hifi__med__high__symbiont_1pct_lambda_1pct__haploid__full
+genome: cryneo
+technology: hifi
+coverage: medium
+coverage_targets:
+  coverage_x: 30
+quality: high
+degradation: []
+contamination:
+  spikes:
+  - source: symbiont
+    fraction: 0.01
+    accession: GCA_000006765.1
+    detail: P. aeruginosa PAO1 as a bacterial culture contaminant in the C. neoformans
+      culture
+  - source: phage
+    fraction: 0.01
+    accession: NC_001416.1
+    detail: Enterobacteria phage lambda at fixed 1% (ADR-014)
+ploidy:
+  expected: haploid
+  actual: haploid
+subset:
+  mode: full
+source_reads:
+  type: simulated
+  accessions: []
+  generator: PENDING
+  seed: 20260811
+notes: 'Long-read contamination unit (ADR-015 cryneo_sim_contam_md_001): HiFi with
+  symbiont at 1% plus lambda at fixed 1% per ADR-014. Tests whether long-read assemblers
+  retain or flag the contaminant.'
+folder_id: cryneo_sim_contam_md_001
+testset_version: 2026.08.1
+seed: 20260811
+read_layout: single
+coverage_x: 30
+generator:
+  controller_version: 0.1.0
+  simulators:
+    art_illumina: 3.19.15
+    pbsim: 3.0.5-sample
+  hifi_profile_id: ecoli_hifi
+files:
+- path: reads/cryneo_sim_contam_md_001.fastq.gz
+  sha256: d7b8069b8d251b09807d41801161ccd6d44e5c812e61431b0a222897491e37c7
+  size: 543644925
+- path: refs/cryneo_sim_contam_md_001.truth.fa
+  sha256: 1b0018d6dc98790d8942ec4a008bd5b2b9ff337b8b6f76901c1a9bf79c6a47b3
+  size: 19153849

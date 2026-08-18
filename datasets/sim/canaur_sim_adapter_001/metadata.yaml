@@ -1,0 +1,47 @@
+schema_version: '1.0'
+dataset_id: canaur__illumina__med__problematic__adapter_spike__haploid__full
+genome: canaur
+technology: illumina
+coverage: medium
+coverage_targets:
+  coverage_x: 30
+quality: problematic
+degradation:
+- mechanism: adapter_only
+  params:
+    fraction: 0.01
+contamination: {}
+ploidy:
+  expected: haploid
+  actual: haploid
+subset:
+  mode: full
+source_reads:
+  type: simulated
+  accessions: []
+  generator: PENDING
+  seed: 20260807
+notes: 'ADR-015 canaur_sim_adapter_001 (ADR-014 adapter-only spike): a fraction of
+  reads carry adapter at both ends; models adapter-dimers in the library. Separate
+  unit from carryover.'
+folder_id: canaur_sim_adapter_001
+testset_version: 2026.08.1
+seed: 20260807
+read_layout: paired
+coverage_x: 30
+generator:
+  controller_version: 0.1.0
+  simulators:
+    art_illumina: 3.19.15
+    pbsim: 3.0.5-sample
+  hifi_profile_id: null
+files:
+- path: reads/canaur_sim_adapter_001_R1.fastq.gz
+  sha256: 2ff5cd64b16bdb5388ab68721e780f4f52a71c8dfe0feab3da10a7887b9b1cfe
+  size: 122821250
+- path: reads/canaur_sim_adapter_001_R2.fastq.gz
+  sha256: 8ddd0b85726625ef2f23764cede198e54666f4e188db37b4db66abf584254384
+  size: 128440072
+- path: refs/canaur_sim_adapter_001.truth.fa
+  sha256: be43f168bbb11e067d71e22118a6f4f5bc4641eeda147298874260e3052f8a64
+  size: 12403340

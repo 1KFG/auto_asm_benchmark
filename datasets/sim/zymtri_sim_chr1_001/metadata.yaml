@@ -1,0 +1,47 @@
+schema_version: '1.0'
+dataset_id: zymtri__illumina__low__medium__none__haploid__chr1_only
+genome: zymtri
+technology: illumina
+coverage: low
+coverage_targets:
+  coverage_x: 10
+quality: medium
+degradation:
+- mechanism: fragment_shorten
+  params:
+    mean_fragment_bp: 200
+contamination: {}
+ploidy:
+  expected: haploid
+  actual: haploid
+subset:
+  mode: single_chromosome
+  chromosome: NC_018218.1
+source_reads:
+  type: simulated
+  accessions: []
+  generator: PENDING
+  seed: 20260813
+notes: 'Structural robustness (ADR-015 zymtri_sim_chr1_001): reads covering only chromosome
+  1. Tests partial-data recovery and whether pipelines over-assemble or produce chimeras.'
+folder_id: zymtri_sim_chr1_001
+testset_version: 2026.08.1
+seed: 20260813
+read_layout: paired
+coverage_x: 10
+generator:
+  controller_version: 0.1.0
+  simulators:
+    art_illumina: 3.19.15
+    pbsim: 3.0.5-sample
+  hifi_profile_id: null
+files:
+- path: reads/zymtri_sim_chr1_001_R1.fastq.gz
+  sha256: 1dece663f5eb4a936c1723f31403d4181f7ec73bffb01467b3a58157efb2d554
+  size: 14686780
+- path: reads/zymtri_sim_chr1_001_R2.fastq.gz
+  sha256: 83fd3b5f5f9dfeb3e3348907e64192a7195e3e452b6077d0829662219675c228
+  size: 15318815
+- path: refs/zymtri_sim_chr1_001.truth.fa
+  sha256: 558b189fb3d01277c153526a4f4cdc3635bcb2b0f4ccc94ed2dcd435a4c5632d
+  size: 6088811

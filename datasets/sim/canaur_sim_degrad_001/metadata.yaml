@@ -1,0 +1,50 @@
+schema_version: '1.0'
+dataset_id: canaur__illumina__med__problematic__none__haploid__full
+genome: canaur
+technology: illumina
+coverage: medium
+coverage_targets:
+  coverage_x: 30
+quality: problematic
+degradation:
+- mechanism: qscore_floor
+  params:
+    floor: 15
+- mechanism: offbias_trim
+  params:
+    bases_from_3: 25
+    window_size: 4
+contamination: {}
+ploidy:
+  expected: haploid
+  actual: haploid
+subset:
+  mode: full
+source_reads:
+  type: simulated
+  accessions: []
+  generator: PENDING
+  seed: 20260805
+notes: 'ADR-015 canaur_sim_degrad_001: single-axis degradation unit (no contamination,
+  no ploidy surprise). Q-score floor + off-bias 3'' trimming.'
+folder_id: canaur_sim_degrad_001
+testset_version: 2026.08.1
+seed: 20260805
+read_layout: paired
+coverage_x: 30
+generator:
+  controller_version: 0.1.0
+  simulators:
+    art_illumina: 3.19.15
+    pbsim: 3.0.5-sample
+  hifi_profile_id: null
+files:
+- path: reads/canaur_sim_degrad_001_R1.fastq.gz
+  sha256: dd0d5420435991cab9deac70c5eb1c4c03c38144a1580b274040815d98478a69
+  size: 103771788
+- path: reads/canaur_sim_degrad_001_R2.fastq.gz
+  sha256: aceb91357919c9f9a6753670ca9ea148a44ba8bd6c5c0e3e98e0f4d52452f372
+  size: 108137342
+- path: refs/canaur_sim_degrad_001.truth.fa
+  sha256: be43f168bbb11e067d71e22118a6f4f5bc4641eeda147298874260e3052f8a64
+  size: 12403340

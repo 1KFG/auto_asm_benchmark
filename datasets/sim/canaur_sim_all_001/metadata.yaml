@@ -1,0 +1,71 @@
+schema_version: '1.0'
+dataset_id: canaur__illumina__med__problematic__all_1pct__haploid__full
+genome: canaur
+technology: illumina
+coverage: medium
+coverage_targets:
+  coverage_x: 30
+quality: problematic
+degradation:
+- mechanism: qscore_floor
+  params:
+    floor: 15
+- mechanism: offbias_trim
+  params:
+    bases_from_3: 25
+    window_size: 4
+- mechanism: adapter_only
+  params:
+    fraction: 0.01
+contamination:
+  spikes:
+  - source: phix
+    fraction: 0.0025
+    accession: NC_001422.1
+    detail: PhiX 174 (cocktail, 1/4 of 1%)
+  - source: ecoli
+    fraction: 0.0025
+    accession: NC_000913.3
+    detail: E. coli K-12 MG1655 (cocktail, 1/4 of 1%)
+  - source: vector
+    fraction: 0.0025
+    accession: L09137.2
+    detail: pUC19 cloning vector (cocktail, 1/4 of 1%)
+  - source: phage
+    fraction: 0.0025
+    accession: NC_001416.1
+    detail: Enterobacteria phage lambda (cocktail, 1/4 of 1%)
+ploidy:
+  expected: haploid
+  actual: haploid
+subset:
+  mode: full
+source_reads:
+  type: simulated
+  accessions: []
+  generator: PENDING
+  seed: 20260809
+notes: 'ADR-015 canaur_sim_all_001: combined single unit composing md-tier contamination
+  + quality degradation + the adapter spike (NOT the carryover). Thresholds are only
+  composed here, never archived as a k-level cross product (ADR-014).'
+folder_id: canaur_sim_all_001
+testset_version: 2026.08.1
+seed: 20260809
+read_layout: paired
+coverage_x: 30
+generator:
+  controller_version: 0.1.0
+  simulators:
+    art_illumina: 3.19.15
+    pbsim: 3.0.5-sample
+  hifi_profile_id: null
+files:
+- path: reads/canaur_sim_all_001_R1.fastq.gz
+  sha256: 54e67ef64e5206f432cf880fc80ae6aad0634e6c0d109c991ce0b57d8f619568
+  size: 103647439
+- path: reads/canaur_sim_all_001_R2.fastq.gz
+  sha256: cb9421de42ff4b527ea5021474b3bb4e7f46923a8c1cc9c529c0c855a11921de
+  size: 108007798
+- path: refs/canaur_sim_all_001.truth.fa
+  sha256: be43f168bbb11e067d71e22118a6f4f5bc4641eeda147298874260e3052f8a64
+  size: 12403340

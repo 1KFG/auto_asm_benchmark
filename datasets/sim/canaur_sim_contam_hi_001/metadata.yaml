@@ -1,0 +1,60 @@
+schema_version: '1.0'
+dataset_id: canaur__illumina__med__high__cocktail_5pct__haploid__full
+genome: canaur
+technology: illumina
+coverage: medium
+coverage_targets:
+  coverage_x: 30
+quality: high
+degradation: []
+contamination:
+  spikes:
+  - source: phix
+    fraction: 0.0125
+    accession: NC_001422.1
+    detail: PhiX 174, sequencing spike-in control (cocktail, 1/4 of 5%)
+  - source: ecoli
+    fraction: 0.0125
+    accession: NC_000913.3
+    detail: E. coli K-12 MG1655, culture contamination (cocktail, 1/4 of 5%)
+  - source: vector
+    fraction: 0.0125
+    accession: L09137.2
+    detail: pUC19 cloning vector (cocktail, 1/4 of 5%)
+  - source: phage
+    fraction: 0.0125
+    accession: NC_001416.1
+    detail: Enterobacteria phage lambda (cocktail, 1/4 of 5%)
+ploidy:
+  expected: haploid
+  actual: haploid
+subset:
+  mode: full
+source_reads:
+  type: simulated
+  accessions: []
+  generator: PENDING
+  seed: 20260804
+notes: ADR-015 canaur_sim_contam_hi_001 (ADR-014 tier hi = 5% of reads). Canaur cocktail
+  split equally across the four sources so total contamination = 5%.
+folder_id: canaur_sim_contam_hi_001
+testset_version: 2026.08.1
+seed: 20260804
+read_layout: paired
+coverage_x: 30
+generator:
+  controller_version: 0.1.0
+  simulators:
+    art_illumina: 3.19.15
+    pbsim: 3.0.5-sample
+  hifi_profile_id: null
+files:
+- path: reads/canaur_sim_contam_hi_001_R1.fastq.gz
+  sha256: 4110974a39168b20b0ea8cbc68ca170d60ea453784b3f9bd9945ac532efe8c5f
+  size: 125944581
+- path: reads/canaur_sim_contam_hi_001_R2.fastq.gz
+  sha256: d0bff2af60ee4e3f5dae4ff07f3459ff58eaae0ce5d6090b0833c8a2d71e6606
+  size: 131710115
+- path: refs/canaur_sim_contam_hi_001.truth.fa
+  sha256: be43f168bbb11e067d71e22118a6f4f5bc4641eeda147298874260e3052f8a64
+  size: 12403340

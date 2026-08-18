@@ -1,0 +1,48 @@
+schema_version: '1.0'
+dataset_id: canaur__illumina__med__problematic__adapter_carryover__haploid__full
+genome: canaur
+technology: illumina
+coverage: medium
+coverage_targets:
+  coverage_x: 30
+quality: problematic
+degradation:
+- mechanism: adapter_carryover
+  params:
+    fraction: 0.1
+    bases_from_3: 25
+contamination: {}
+ploidy:
+  expected: haploid
+  actual: haploid
+subset:
+  mode: full
+source_reads:
+  type: simulated
+  accessions: []
+  generator: PENDING
+  seed: 20260808
+notes: 'ADR-015 canaur_sim_carryover_001 (ADR-014 3''-end adapter carryover): adapter
+  tailing modeled as a degradation kind on a fraction of reads. Separate unit from
+  the adapter-only spike.'
+folder_id: canaur_sim_carryover_001
+testset_version: 2026.08.1
+seed: 20260808
+read_layout: paired
+coverage_x: 30
+generator:
+  controller_version: 0.1.0
+  simulators:
+    art_illumina: 3.19.15
+    pbsim: 3.0.5-sample
+  hifi_profile_id: null
+files:
+- path: reads/canaur_sim_carryover_001_R1.fastq.gz
+  sha256: 4d97678fa01c56d4e580676275fa27f3d56f09d77dd45344ff99d47a293c26a0
+  size: 124491772
+- path: reads/canaur_sim_carryover_001_R2.fastq.gz
+  sha256: e2920d885afe45bc843f225d10c080aa69d2944cee28bf29b02db6616fd8f2a2
+  size: 130139065
+- path: refs/canaur_sim_carryover_001.truth.fa
+  sha256: be43f168bbb11e067d71e22118a6f4f5bc4641eeda147298874260e3052f8a64
+  size: 12403340

@@ -1,0 +1,47 @@
+schema_version: '1.0'
+dataset_id: canaur__illumina__med__high__none__mismatch__full
+genome: canaur
+technology: illumina
+coverage: medium
+coverage_targets:
+  coverage_x: 30
+quality: high
+degradation: []
+contamination: {}
+ploidy:
+  expected: haploid
+  actual: diploid
+  note: Reads generated from a heterozygous diploid mix while operator assumed haploid;
+    tests haploid-assumption robustness.
+subset:
+  mode: full
+source_reads:
+  type: simulated
+  accessions: []
+  generator: PENDING
+  seed: 20260806
+notes: 'Ploidy-surprise unit (ADR-015 canaur_sim_mix_001). Decoupled from the old
+  combo unit: contamination and degradation now live in their own single-tier units
+  (canaur_sim_contam_*, canaur_sim_degrad_001); this one carries only the ploidy mismatch
+  axis.'
+folder_id: canaur_sim_mix_001
+testset_version: 2026.08.1
+seed: 20260806
+read_layout: paired
+coverage_x: 30
+generator:
+  controller_version: 0.1.0
+  simulators:
+    art_illumina: 3.19.15
+    pbsim: 3.0.5-sample
+  hifi_profile_id: null
+files:
+- path: reads/canaur_sim_mix_001_R1.fastq.gz
+  sha256: 1a5ed1f28662d4433d3db4e65971eff455260e33509e0ce0efcd4ab1976f1def
+  size: 123711126
+- path: reads/canaur_sim_mix_001_R2.fastq.gz
+  sha256: 59220c5322004ace04c5180434b18eea4074c5df26f5b280573fdc0eccf04bd3
+  size: 129366084
+- path: refs/canaur_sim_mix_001.truth.fa
+  sha256: be43f168bbb11e067d71e22118a6f4f5bc4641eeda147298874260e3052f8a64
+  size: 12403340
