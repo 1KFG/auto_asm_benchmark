@@ -1,0 +1,33 @@
+# zymtri_sim_chr1_001: single-chromosome structural subset (heavy-repeat genome, short reads)
+# Schema: schema/dataset.schema.json
+schema_version: "1.0"
+dataset_id: "zymtri__illumina__low__medium__none__haploid__chr1_only"
+
+genome: "zymtri"
+
+technology: "illumina"
+coverage: "low"
+coverage_targets: { coverage_x: 10 }
+
+quality: "medium"
+degradation:
+  - mechanism: fragment_shorten
+    params: { mean_fragment_bp: 200 }
+
+contamination: {}
+
+ploidy:
+  expected: haploid
+  actual: haploid
+
+subset:
+  mode: "single_chromosome"
+  chromosome: "NC_018218.1"     # Z. tritici IPO323 chromosome 1 (pinned from GCF_000219625.1)
+
+source_reads:
+  type: "simulated"
+  accessions: []
+  generator: "0.1.0"
+  seed: 20260813
+
+notes: "Structural robustness (ADR-015 zymtri_sim_chr1_001): reads covering only chromosome 1. Tests partial-data recovery and whether pipelines over-assemble or produce chimeras."

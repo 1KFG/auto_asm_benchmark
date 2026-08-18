@@ -1,0 +1,39 @@
+# cryneo_sim_contam_hi_001: long-read contamination (HiFi + symbiont @5% + lambda @1%)
+# Schema: schema/dataset.schema.json
+schema_version: "1.0"
+dataset_id: "cryneo__hifi__med__high__symbiont_5pct_lambda_1pct__haploid__full"
+
+genome: "cryneo"
+
+technology: "hifi"
+coverage: "medium"
+coverage_targets: { coverage_x: 30 }
+
+quality: "high"
+degradation: []
+
+contamination:
+  spikes:
+    - source: symbiont
+      fraction: 0.05
+      accession: "GCA_000006765.1"                # P. aeruginosa PAO1 (culture contaminant, ADR-017 pin)
+      detail: "P. aeruginosa PAO1 as a bacterial culture contaminant in the C. neoformans culture"
+    - source: phage
+      fraction: 0.01
+      accession: "NC_001416.1"
+      detail: "Enterobacteria phage lambda at fixed 1% (ADR-014)"
+
+ploidy:
+  expected: haploid
+  actual: haploid
+
+subset:
+  mode: "full"
+
+source_reads:
+  type: "simulated"
+  accessions: []
+  generator: "0.1.0"
+  seed: 20260812
+
+notes: "ADR-015 cryneo_sim_contam_hi_001 (ADR-014 tier hi = 5%): HiFi with symbiont at 5% plus lambda at fixed 1%."

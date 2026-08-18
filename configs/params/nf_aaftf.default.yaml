@@ -1,0 +1,36 @@
+# Canonical nf_aaftf param set
+# Matches stajichlab/nf_aaftf inputs (pinned by commit hash in tool_matrix.yaml;
+# profile aaftf = conf/profile_aaftf.config, SINGULARITY engine).
+# Read resolution: ${params.indir}/${read_1} — reads are relative to --indir.
+# Final assembly: results/sort/<sample>.sorted.fasta (SORT module).
+pipeline: nf_aaftf
+
+reads:                    # the adapter maps dataset reads into samples.csv
+  format: "samples.csv"   # sample,read_1,read_2[,taxid]; resolved relative to indir
+  indir: null             # set by adapter to $BENCH_DATASET_DIR/reads
+  taxid: 4751             # fallback NCBI taxid for FCS-GX purge (4751 = Fungi)
+
+params:
+  outdir: "results"        # ${params.outdir}/sort/<sample>.sorted.fasta
+  n_test: 0                # 0 = process all rows; >0 = take first N (smoke/dev)
+  container_engine: "singularity"   # singularity | docker
+  aaftf_sif: null          # pinned local SIF; adapter resolves from tool_matrix/sifs_dir
+  aaftf_db: "/bigdata/stajichlab/shared/lib/AAFTF_DB"
+  taxondb: "/srv/projects/db/taxonomy"
+  fcs_taxid: 4751          # fallback taxonomy id (Fungi) when samples.csv has no taxid
+
+assemble:
+  tool: "spades"           # spades | megahit | unicycler | dipspades
+  args: null               # extra CLI args to the assembler
+
+polish:
+  tool: "polca"            # polca | pilon | racon | nextpolish
+  enabled: true
+
+screen:                   # optional screening stages (both default in the profile)
+  skip_fcsgx: true        # FCS-GX purge is OPTIONAL (big download, big mem)
+  skip_vecscreen: false
+
+databases:
+  busco_lineage: "fungi_odb10"
+  busco_mode: "genome"

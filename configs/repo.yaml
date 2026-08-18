@@ -1,0 +1,64 @@
+# Repo-wide configuration
+# Schema: schema/repo.schema.json
+schema_version: "1.0"
+
+project:
+  name: "auto_asm_benchmark"
+  version: "0.1.0"
+  phase: "1 (fungal-first)"
+  contact: "jason.stajich@ucr.edu"
+
+storage:
+  provider: "gcp"           # GCP preferred; future: aws optional
+  hot_bucket: "gs://stajichlab-asm-benchmarking/"
+  cold_archive: "zenodo|dryad"   # one per frozen test-set version
+  never_rehost_third_party_raw_reads: true
+  layout:
+    datasets: "gs://stajichlab-asm-benchmarking/datasets"
+    refs:     "gs://stajichlab-asm-benchmarking/refs"
+    cache:    "gs://stajichlab-asm-benchmarking/cache"
+    results:  "gs://stajichlab-asm-benchmarking/results"
+  naming:
+    scheme: "<genome_id>_<stressor>_<NNN>"   # ADR-013
+    kinds: [sim, sim_contam, sim_degrad, sim_mix, sim_adapter, sim_carryover, sim_all, sim_chr1, real, real_hybrid]   # ADR-013 (clean obsolete)
+    example: "canaur_sim_contam_001"
+    mapping: "manifests/registry.yaml"   # short folder id <-> full dataset_id + GCS URI
+
+execution:
+  default_profile: "local"   # smoke test
+  production_profile: "slurm" # HPCC SLURM
+  gcp_profile_stub: "gcp"     # future offload
+  orchestrator: "nextflow-dsl2"
+
+system_score:
+  # weights from metrics.md
+  w_success: 1.0
+  w_partial: 0.5
+  w_failed_penalty: 1.0
+  w_blocked_penalty: 2.0     # wrong-answer punished most heavily
+
+contamination_assessment:
+  # ADR-012: post-hoc, independent of pipeline cleanup stage
+  min_aligned_bp: 200        # c_min — contig flagged as contaminant when >= this bp aligns to a contaminant ref
+  oracle_tools: ["minimap2"]  # align produced assembly -> declared spike refs
+  screen_tools: ["FCS_screen", "FCS-GX", "kraken2-eval"]  # general screen for real-SRA / unknown contaminants
+  blocked_if: "assembly_flagged_contaminated"  # success+contaminated assembly -> Blocked outcome
+
+validation:
+  make_target: "validate"
+  schema_dir: "schema"
+  # every YAML instance file is checked against its JSON schema
+  checks:
+    - dataset -> schema/dataset.schema.json (datasets/*.yaml)
+    - manifest -> schema/manifest.schema.json (manifests/testset_*.yaml)
+    - registry -> schema/registry.schema.json (manifests/registry.yaml)
+    - genomes -> schema/genomes.schema.json (assets/genomes.yaml)
+    - tool_matrix -> schema/tool_matrix.schema.json (configs/tool_matrix.yaml)
+    - repo -> schema/repo.schema.json (configs/repo.yaml)
+
+provenance:
+  # every run emits this snapshot into its results dir
+  emits: "provenance.yaml"
+  includes: ["tool versions", "container digests", "workflow commit hashes",
+             "conda lockfiles", "reference-database versions", "truth accession",
+             "dataset id", "frozen test-set version"]

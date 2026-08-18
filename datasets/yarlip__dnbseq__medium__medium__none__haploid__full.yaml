@@ -1,0 +1,30 @@
+# yarlip_real_002: real MGISEQ reads, Yarrowia lipolytica W29 (truth CLIB122)
+# Schema: schema/dataset.schema.json
+schema_version: "1.0"
+dataset_id: "yarlip__dnbseq__medium__medium__none__haploid__full"
+
+genome: "yarlip"
+
+technology: "dnbseq"
+coverage: "medium"        # estimate; verify from SRA metadata at curation
+coverage_targets: {}      # real reads: coverage is whatever the run gave
+
+quality: "medium"         # real reads, not synthetic perfection
+
+contamination:
+  observed: {}            # populated by one-time read-screen (ADR-017)
+
+ploidy:
+  expected: haploid
+  actual: haploid
+
+subset:
+  mode: "full"
+
+source_reads:
+  type: "real_sra"
+  accessions: ["SRR37832855"]
+  generator: null
+  seed: null
+
+notes: "ADR-016 yarlip_real_002: BGI MGISEQ reads of Y. lipolytica W29 (SRR37832855), truth CLIB122. Real reads, never re-hosted; cached on demand. contamination.observed filled by the curated read-screen."

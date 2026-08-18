@@ -1,0 +1,147 @@
+# Backbone truth-genome registry
+# Schema: schema/genomes.schema.json
+# Grounding: NCBI RefSeq/GenBank assembly queries, 2026-08-17.
+# These are the host (truth/reference) genomes for Phase 1. Contaminant
+# genomes are declared per-dataset in datasets/*.yaml.
+# Genome ids are 3+3-letter mnemonics with no strain suffix (ADR-013).
+
+schema_version: "1.0"
+
+genomes:
+  - id: yarlip
+    species: "Yarrowia lipolytica"
+    strain: "CLIB122"
+    taxonomy:
+      kingdom: Fungi
+      phylum: Ascomycota
+      class: Saccharomycetes
+    archetype: "Yeast (T2T)"
+    accession: "GCF_001761485.1"
+    assembly_name: "ASM176148v1"
+    assembly_level: "Complete Genome"
+    contig_n50: 3629463
+    total_length: 20500066
+    notes: "T2T/completely assembled yeast reference."
+
+  - id: canaur
+    species: "Candida auris"
+    strain: "B11243"
+    taxonomy:
+      kingdom: Fungi
+      phylum: Ascomycota
+      class: Saccharomycetes
+    archetype: "Yeast (T2T)"
+    accession: "GCF_003013715.1"
+    assembly_name: "ASM301371v2"
+    assembly_level: "Complete Genome"
+    contig_n50: 2336890
+    total_length: 12249773
+    notes: "Completed genome; opportunistic human pathogen."
+
+  - id: aspfum
+    species: "Aspergillus fumigatus"
+    strain: "Af293"
+    taxonomy:
+      kingdom: Fungi
+      phylum: Ascomycota
+      class: Eurotiomycetes
+    archetype: "Filamentous, moderate repeats"
+    accession: "GCF_000002655.1"
+    assembly_name: "ASM265v1"
+    assembly_level: "Chromosome"
+    contig_n50: 2460113
+    total_length: 29384958
+    alternatives:
+      - id: aspfum_af1009b
+        accession: "GCA_040126065.1"
+        assembly_name: "UCR_Afum_AF100-9B_1.0"
+        assembly_level: "Complete Genome"
+        contig_n50: 3760025
+        total_length: 28304265
+        notes: "Lab T2T assembly; complete."
+      - id: aspfum_cea10
+        accession: "CEA10"
+        notes: "PacBio data but NO Illumina. Optional long-read-only slot."
+    notes: "CEA10 recorded as optional alt due to PacBio-only read support."
+
+  - id: zymtri
+    species: "Zymoseptoria tritici"
+    strain: "IPO323"
+    taxonomy:
+      kingdom: Fungi
+      phylum: Ascomycota
+      class: Dothideomycetes
+    archetype: "Heavy repeat / complex"
+    accession: "GCF_000219625.1"
+    assembly_name: "MYCGR v2.0"
+    assembly_level: "Chromosome"
+    contig_n50: 2665280
+    total_length: 39686251
+    notes: "Chromosome-level, 21 chromosomes; hard assembly case."
+
+  - id: cryneo
+    species: "Cryptococcus neoformans"
+    strain: "H99"
+    taxonomy:
+      kingdom: Fungi
+      phylum: Basidiomycota
+      class: Tremellomycetes
+    archetype: "Basidiomycete (Tremellales)"
+    accession: "GCF_000149245.1"
+    assembly_name: "CNA3"
+    assembly_level: "Chromosome"
+    contig_n50: 1422463
+    total_length: 18891193
+    notes: "Chromosome-level; rich SRA read-depth (short + long read)."
+
+  - id: agabis
+    species: "Agaricus bisporus"
+    strain: "ASM5547079v1"
+    taxonomy:
+      kingdom: Fungi
+      phylum: Basidiomycota
+      class: Agaricomycetes
+    archetype: "Basidiomycete (Agaricales)"
+    accession: "GCA_055470795.1"
+    assembly_name: "ASM5547079v1"
+    assembly_level: "Complete Genome"
+    contig_n50: 2491566
+    total_length: 30196567
+    notes: "Recent complete genome; Agaricales slot. Read-depth to verify."
+
+  - id: rhimic
+    species: "Rhizopus microsporus"
+    strain: "ATCC 52813"
+    taxonomy:
+      kingdom: Fungi
+      phylum: Mucoromycota
+      class: Mucoromycetes
+    archetype: "Mucoromycotina (with Mycetohabitans endosymbiont)"
+    accession: "GCF_002708625.1"
+    assembly_name: "Rhimi1_1"
+    assembly_level: "Scaffold"
+    contig_n50: 69381
+    total_length: 25972395
+    notes: "Species reference genome (JGI, Illumina). STRAIN CAVEAT: the real-read work-unit rhimic_real_001 uses SRR9029155, a JGI RESEQUENCING of R. microsporus NRRL 5546, and no NRRL 5546 assembly is public; ATCC 52813 (GCF_002708625.1) is used as host truth with this documented strain mismatch. The Mycetohabitans sp. B46 symbiont (GCF_037389205.1) is the natural endosymbiont of NRRL 5546 (see ADR-016)."
+
+auxiliary:
+  - id: copcin
+    species: "Coprinopsis cinerea"
+    strain: "CC3"
+    accession: "GCF_000182895.1"
+    assembly_level: "Contig"
+    contig_n50: 3468139
+    notes: "Well-validated 13-chromosome karyotype; cross-check, not primary truth."
+  - id: ustmay
+    species: "Ustilago maydis"
+    strain: "521"
+    accession: "GCF_000328475.2"
+    assembly_level: "Chromosome"
+    contig_n50: 129796
+    notes: "Chromosome-level but fragmented at contig level; secondary."
+
+excluded_note: "Puccinia spp. excluded for now (large/repetitive genomes); registry is extensible in future phases."
+
+# Phase-2 expansion candidates (not yet resolved)
+expansion_notes:
+  - "Per-genome SRA verification of read-type availability (esp. DNBSEQ, HiFi for Agaricales/Mucoromycotina picks) is a required dataset-curation task."

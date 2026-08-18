@@ -1,0 +1,30 @@
+# yarlip_real_001: real ONT reads, Yarrowia lipolytica W29 (truth CLIB122)
+# Schema: schema/dataset.schema.json
+schema_version: "1.0"
+dataset_id: "yarlip__nanopore__high__medium__none__haploid__full"
+
+genome: "yarlip"
+
+technology: "nanopore"
+coverage: "high"          # estimate; verify from SRA metadata at curation
+coverage_targets: {}      # real reads: coverage is whatever the run gave
+
+quality: "medium"         # real ONT basecalls, not synthetic perfection
+
+contamination:
+  observed: {}            # populated by one-time read-screen (ADR-017)
+
+ploidy:
+  expected: haploid
+  actual: haploid
+
+subset:
+  mode: "full"
+
+source_reads:
+  type: "real_sra"
+  accessions: ["SRR37832827"]
+  generator: null
+  seed: null
+
+notes: "ADR-016 yarlip_real_001: ONT reads of Y. lipolytica W29 (SRR37832827), truth CLIB122. Real reads, never re-hosted; cached on demand for compute. contamination.observed filled by the curated read-screen."

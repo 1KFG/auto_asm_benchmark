@@ -1,0 +1,119 @@
+schema_version: '1.0'
+testset_version: 2026.08.1
+generated_by:
+  simulation_repo_commit: e4d64a4ac686ed22e2a768a726149543b62c4b9b
+  simulation_controller_version: 0.1.0
+  seed_root: 20260801
+datasets:
+- dataset_id: yarlip__illumina__med__high__none__haploid__full
+  uri: gs://stajichlab-asm-benchmarking/datasets/yarlip_sim_001
+  md5: 5980040589873b82512b8f49533e3c73
+  size: 423668874
+- dataset_id: canaur__illumina__med__high__cocktail_0p1pct__haploid__full
+  uri: gs://stajichlab-asm-benchmarking/datasets/canaur_sim_contam_lo_001
+  md5: 6bbab2e47ebe1763f68ac469e633dd2f
+  size: 253287760
+- dataset_id: canaur__illumina__med__high__cocktail_1pct__haploid__full
+  uri: gs://stajichlab-asm-benchmarking/datasets/canaur_sim_contam_md_001
+  md5: 52738af8eb30eb7a5d85550f241f87a3
+  size: 254541709
+- dataset_id: canaur__illumina__med__high__cocktail_5pct__haploid__full
+  uri: gs://stajichlab-asm-benchmarking/datasets/canaur_sim_contam_hi_001
+  md5: 9a15ee96ec6bf4a70ff83fe15642c84a
+  size: 257654696
+- dataset_id: canaur__illumina__med__problematic__none__haploid__full
+  uri: gs://stajichlab-asm-benchmarking/datasets/canaur_sim_degrad_001
+  md5: 005be97e5aed5024baeecf6edb966d73
+  size: 211909130
+- dataset_id: canaur__illumina__med__high__none__mismatch__full
+  uri: gs://stajichlab-asm-benchmarking/datasets/canaur_sim_mix_001
+  md5: eef0e1d235a13b5da53b1f5e62e6770f
+  size: 253077210
+- dataset_id: canaur__illumina__med__problematic__adapter_spike__haploid__full
+  uri: gs://stajichlab-asm-benchmarking/datasets/canaur_sim_adapter_001
+  md5: 5260469971a6b714ab8dfcde2b3b6c29
+  size: 251261322
+- dataset_id: canaur__illumina__med__problematic__adapter_carryover__haploid__full
+  uri: gs://stajichlab-asm-benchmarking/datasets/canaur_sim_carryover_001
+  md5: 68a8a1e4be7b8a1a1640b2f05bf59cdb
+  size: 254630837
+- dataset_id: canaur__illumina__med__problematic__all_1pct__haploid__full
+  uri: gs://stajichlab-asm-benchmarking/datasets/canaur_sim_all_001
+  md5: 60edad219500f4b5d6dbc3ef2d1afa6b
+  size: 211655237
+- dataset_id: cryneo__hifi__med__high__symbiont_0p1pct_lambda_1pct__haploid__full
+  uri: gs://stajichlab-asm-benchmarking/datasets/cryneo_sim_contam_lo_001
+  md5: 1716ee222e82867960a28c1059313a2d
+  size: 538543290
+- dataset_id: cryneo__hifi__med__high__symbiont_1pct_lambda_1pct__haploid__full
+  uri: gs://stajichlab-asm-benchmarking/datasets/cryneo_sim_contam_md_001
+  md5: 761e2829362d9f4d11756e84e9504058
+  size: 543644925
+- dataset_id: cryneo__hifi__med__high__symbiont_5pct_lambda_1pct__haploid__full
+  uri: gs://stajichlab-asm-benchmarking/datasets/cryneo_sim_contam_hi_001
+  md5: 55e326956efdb725d248cb2b7ee539bb
+  size: 562166411
+- dataset_id: zymtri__illumina__low__medium__none__haploid__chr1_only
+  uri: gs://stajichlab-asm-benchmarking/datasets/zymtri_sim_chr1_001
+  md5: e32925932044290a7af8c46bdbc88885
+  size: 30005595
+- dataset_id: yarlip__nanopore__high__medium__none__haploid__full
+  uri: gs://stajichlab-asm-benchmarking/datasets/yarlip_real_001
+  md5: ffffffffffffffffffffffffffffffff
+  size: 0
+  real_source_accessions:
+  - SRR37832827
+- dataset_id: yarlip__dnbseq__medium__medium__none__haploid__full
+  uri: gs://stajichlab-asm-benchmarking/datasets/yarlip_real_002
+  md5: fffffffffffffffffffffffffffffff0
+  size: 0
+  real_source_accessions:
+  - SRR37832855
+- dataset_id: cryneo__illumina__high__medium__none__haploid__full
+  uri: gs://stajichlab-asm-benchmarking/datasets/cryneo_real_001
+  md5: fffffffffffffffffffffffffffffff1
+  size: 0
+  real_source_accessions:
+  - SRR36664817
+- dataset_id: cryneo__hybrid__high__medium__none__haploid__full
+  uri: gs://stajichlab-asm-benchmarking/datasets/cryneo_real_hybrid_001
+  md5: fffffffffffffffffffffffffffffff2
+  size: 0
+  real_source_accessions:
+  - SRR13201975
+  - SRR13201974
+- dataset_id: aspfum__hybrid__high__medium__none__haploid__full
+  uri: gs://stajichlab-asm-benchmarking/datasets/aspfum_real_hybrid_001
+  md5: fffffffffffffffffffffffffffffff3
+  size: 0
+  real_source_accessions:
+  - SRR28035763
+  - SRR28035764
+- dataset_id: aspfum__hifi__medium__medium__none__haploid__full
+  uri: gs://stajichlab-asm-benchmarking/datasets/aspfum_real_003
+  md5: fffffffffffffffffffffffffffffff4
+  size: 0
+  real_source_accessions:
+  - ERR8084627
+- dataset_id: rhimic__illumina__high__medium__symbiont__haploid__full
+  uri: gs://stajichlab-asm-benchmarking/datasets/rhimic_real_001
+  md5: fffffffffffffffffffffffffffffff5
+  size: 0
+  real_source_accessions:
+  - SRR9029155
+forking:
+  default_only: true
+  full_cross_regenerable: true
+  notes: Only canonical/default flavors archived here; full cross regenerable from
+    simulation/ tooling. Real units reference SRA/ENA accessions (never re-hosted).
+archive:
+  doi: PENDING
+  location: pending
+  permanent_download_uri: PENDING
+changes_since_previous: 'Renamed the 4 original work-units and expanded the corpus
+  to the ADR-013 stressor vocabulary: 13 simulated units (sim, sim_contam lo/md/hi,
+  sim_degrad, sim_mix, sim_adapter, sim_carryover, sim_all, sim_chr1) + 7 real/hybrid
+  units (real, real_hybrid). yarlip_sim_001 is ART-simulated (not real). Per-dataset
+  PRNG seeds are the contiguous family 20260801-20260813 (seed_root = 20260801; yarlip=root+0
+  .. zymtri=root+12), defined in each dataset YAML. All 23 read files verified well-formed
+  FASTQ.'

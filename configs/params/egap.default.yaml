@@ -1,0 +1,42 @@
+# Canonical EGAP param set
+# Matches iPsychonaut/EGAP v3.4.1 (pinned by tag commit cf28ffc6... in tool_matrix.yaml,
+# == bioconda egap==3.4.1). v3.4.1 input is a CSV; the adapter builds it from the
+# dataset reads at run time (headers below are the v3.4.1 CSV column set).
+pipeline: egap
+
+# Reads are discovered by the adapter inside $BENCH_DATASET_DIR/reads and mapped
+# into the ILLUMINA_RAW_DIR / ILLUMINA_RAW_F_READS / ILLUMINA_RAW_R_READS CSV columns
+# (forward/reverse). The CSV header order matches EGAP v3.4.1's EGAP_test.csv:
+#   ONT_SRA, ONT_RAW_DIR, ONT_RAW_READS,
+#   ILLUMINA_SRA, ILLUMINA_RAW_DIR, ILLUMINA_RAW_F_READS, ILLUMINA_RAW_R_READS,
+#   PACBIO_SRA, PACBIO_RAW_DIR, PACBIO_RAW_READS,
+#   SPECIES_ID, SAMPLE_ID, ORGANISM_KINGDOM, ORGANISM_KARYOTE, BUSCO_1, BUSCO_2,
+#   EST_SIZE, REF_SEQ_GCA, REF_SEQ
+reads: []
+
+params:
+  outdir: "results"
+  cpu_threads: 8
+  ram_gb: 32
+  dry_run: false        # true: log file-management actions without executing
+  tui: false
+
+# Assembler auto-selection: EGAP runs every assembler compatible with the supplied
+# read types and picks the best (BUSCO + N50 + contig count). Use --no-* flags to
+# disable specific assemblers. Set to false to skip a given assembler.
+assemble:
+  masurca: true        # --no-masurca to disable
+  flye: true           # --no-flye
+  spades: true         # --no-spades
+  hifiasm: true        # --no-hifiasm
+
+sample:  # per-sample fields for the CSV (dataset-dependent; adapter fills defaults)
+  species_id: "PENDING"
+  organism_kingdom: "Funga"      # Tiara empire: Funga | Bacteria | Flora | Fauna
+  organism_karyote: "eukaryote"
+  busco_1: "fungi"               # primary BUSCO lineage (e.g. fungi)
+  busco_2: "basidiomycota"       # secondary lineage (e.g. basidiomycota)
+  est_size: "50m"                # estimated genome size, e.g. 50m/75m/100m
+
+databases:
+  busco_lineage: "fungi_odb10"

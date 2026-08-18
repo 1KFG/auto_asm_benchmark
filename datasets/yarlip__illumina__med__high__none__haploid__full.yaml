@@ -1,0 +1,31 @@
+# yarlip_sim_001: quality-dimension control (clean simulated Illumina, medium coverage)
+# Schema: schema/dataset.schema.json
+schema_version: "1.0"
+dataset_id: "yarlip__illumina__med__high__none__haploid__full"
+
+genome: "yarlip"
+
+technology: "illumina"
+coverage: "medium"
+coverage_targets: { coverage_x: 30 }
+
+quality: "high"
+degradation: []
+
+contamination: {}
+
+ploidy:
+  expected: haploid
+  actual: haploid
+  note: "True haploid yeast; control dataset."
+
+subset:
+  mode: "full"
+
+source_reads:
+  type: "simulated"
+  accessions: []
+  generator: "0.1.0"   # simulation controller version once created
+  seed: 20260801
+
+notes: "Quality-dimension control: clean short-read data at medium coverage, ART-simulated deterministically from the truth reference so the source is exact and reproducible. Formerly declared real_sra/yari_clean at the pre-ADR-013 cleanup stage; corrected to simulated (ADR-015 yarlip_sim_001)."

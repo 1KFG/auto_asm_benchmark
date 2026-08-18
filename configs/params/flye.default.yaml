@@ -1,0 +1,29 @@
+# Canonical Flye long-read pipeline param set (HiFi / Nanopore)
+pipeline: flye_pipeline
+technology: long_read
+
+qc:
+  tool: chopper_or_nanoq          # nanopore length/quality filter; hifi passes through
+  params:
+    min_length: 1000
+    min_quality: 10
+
+assemble:
+  tool: flye
+  params:
+    # --nano-raw for simplex ONT, --pacbio-hifi for HiFi, --nano-hq for Q20 ONT
+    mode: "--pacbio-hifi"         # change per-dataset
+    iterations: 2
+    min_overlap: 5000
+    meta: false                   # single-genome assembly
+
+polish:
+  - tool: racon
+    rounds: 2
+    aligner: minimap2
+  - tool: medaka_or_nextpolish
+    rounds: 1
+    note: "medaka for ONT; nextpolish for HiFi"
+
+threads: 16
+memory_gb: 128

@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/jstajich/auto_asm_benchmark/schema/registry.schema.json",
+  "title": "Dataset Registry (short folder id <-> dataset)",
+  "description": "Authoritative mapping between short GCS folder ids and full dataset work-unit ids, + GCS URIs. Kept on HPCC local host and mirrored into the bucket.",
+  "type": "object",
+  "required": ["schema_version", "testset_version", "entries"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "testset_version": { "type": "string", "description": "frozen test-set version this registry belongs to (e.g. 2026.08.1)" },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["folder_id", "dataset_id", "uri"],
+        "properties": {
+          "folder_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+_(sim_contam_(lo|md|hi)|sim_degrad|sim_mix|sim_adapter|sim_carryover|sim_all|sim_chr1|sim|real_hybrid|real)_[0-9]{3}$",
+            "description": "<genome_id>_<stressor>_<NNN> per ADR-013; contamination tiers carry lo/md/hi suffix"
+          },
+          "dataset_id": { "type": "string", "description": "full dataset_id in datasets/*.yaml" },
+          "uri": { "type": "string", "description": "gcs path of the folder" },
+          "seed_root": { "type": "integer", "description": "root seed used for this dataset's generation (from source_reads.seed)" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

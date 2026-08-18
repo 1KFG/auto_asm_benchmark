@@ -240,3 +240,12 @@ results/
 # local scratch during dataset generation
 local_staging/
 *.log
+
+# generated dataset reads (frozen work-unit definitions live in datasets/*.yaml)
+datasets/sim/
+
+# Nextflow / SLURM run artifacts
+logs/
+restart
+.nextflow.log*
+slurm_run.log

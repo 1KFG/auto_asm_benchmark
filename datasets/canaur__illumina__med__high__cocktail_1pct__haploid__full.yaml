@@ -1,0 +1,47 @@
+# canaur_sim_contam_md_001: contamination-only, md tier (1% total)
+# Schema: schema/dataset.schema.json
+schema_version: "1.0"
+dataset_id: "canaur__illumina__med__high__cocktail_1pct__haploid__full"
+
+genome: "canaur"
+
+technology: "illumina"
+coverage: "medium"
+coverage_targets: { coverage_x: 30 }
+
+quality: "high"
+degradation: []
+
+contamination:
+  spikes:
+    - source: phix
+      fraction: 0.0025
+      accession: "NC_001422.1"
+      detail: "PhiX 174, sequencing spike-in control (cocktail, 1/4 of 1%)"
+    - source: ecoli
+      fraction: 0.0025
+      accession: "NC_000913.3"
+      detail: "E. coli K-12 MG1655, culture contamination (cocktail, 1/4 of 1%)"
+    - source: vector
+      fraction: 0.0025
+      accession: "L09137.2"
+      detail: "pUC19 cloning vector (cocktail, 1/4 of 1%)"
+    - source: phage
+      fraction: 0.0025
+      accession: "NC_001416.1"
+      detail: "Enterobacteria phage lambda (cocktail, 1/4 of 1%)"
+
+ploidy:
+  expected: haploid
+  actual: haploid
+
+subset:
+  mode: "full"
+
+source_reads:
+  type: "simulated"
+  accessions: []
+  generator: "0.1.0"
+  seed: 20260803
+
+notes: "ADR-015 canaur_sim_contam_md_001 (ADR-014 tier md = 1% of reads). Canaur cocktail split equally across the four sources so total contamination = 1%. This is the tier that the old candaur combo unit carried as phix_ecoli_1pct, now decoupled into its own single-tier unit."

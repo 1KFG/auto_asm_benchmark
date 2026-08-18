@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/jstajich/auto_asm_benchmark/schema/repo.schema.json",
+  "title": "Repo-Wide Configuration",
+  "description": "Global benchmark repository configuration (storage, execution, system score weights, validation, provenance).",
+  "type": "object",
+  "required": ["schema_version", "project", "storage", "execution", "system_score", "validation", "provenance"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "project": {
+      "type": "object",
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "phase": { "type": "string" },
+        "contact": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "storage": {
+      "type": "object",
+      "required": ["provider", "hot_bucket"],
+      "properties": {
+        "provider": { "enum": ["gcp", "aws", "both"] },
+        "hot_bucket": { "type": "string" },
+        "cold_archive": { "type": "string" },
+        "never_rehost_third_party_raw_reads": { "type": "boolean" },
+        "layout": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "naming": {
+          "type": "object",
+          "properties": {
+            "scheme": { "type": "string" },
+            "kinds": { "type": "array", "items": { "type": "string" } },
+            "example": { "type": "string" },
+            "mapping": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "execution": {
+      "type": "object",
+      "required": ["orchestrator"],
+      "properties": {
+        "default_profile": { "type": "string" },
+        "production_profile": { "type": "string" },
+        "gcp_profile_stub": { "type": "string" },
+        "orchestrator": { "enum": ["nextflow-dsl2"] }
+      },
+      "additionalProperties": false
+    },
+    "system_score": {
+      "type": "object",
+      "properties": {
+        "w_success": { "type": "number" },
+        "w_partial": { "type": "number" },
+        "w_failed_penalty": { "type": "number" },
+        "w_blocked_penalty": { "type": "number" }
+      },
+      "additionalProperties": false
+    },
+    "contamination_assessment": {
+      "type": "object",
+      "properties": {
+        "min_aligned_bp": { "type": "integer" },
+        "oracle_tools": { "type": "array", "items": { "type": "string" } },
+        "screen_tools": { "type": "array", "items": { "type": "string" } },
+        "blocked_if": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "validation": {
+      "type": "object",
+      "required": ["make_target", "schema_dir"],
+      "properties": {
+        "make_target": { "type": "string" },
+        "schema_dir": { "type": "string" },
+        "checks": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["emits"],
+      "properties": {
+        "emits": { "type": "string" },
+        "includes": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

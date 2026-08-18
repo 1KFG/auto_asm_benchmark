@@ -1,0 +1,17 @@
+# Canonical hifiasm pipeline param set
+pipeline: hifiasm_pipeline
+technology: hifi
+
+assemble:
+  tool: hifiasm
+  params:
+    # -1 for haploid-assuming; default (none) for diploid/haplotype-resolving
+    mode: "-1"                     # haploid mode default; change for ploidy-mismatch scenarios
+    primary_assembly: true
+
+postprocess:
+  convert_gfa_to_fa: true          # run-gfa2fa or hifiasm output gfa in fasta
+  hap1_as_default: true            # if diploid mode, emit hap1 as primary
+
+threads: 16
+memory_gb: 128

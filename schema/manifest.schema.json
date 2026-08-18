@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/jstajich/auto_asm_benchmark/schema/manifest.schema.json",
+  "title": "Frozen Test-Set Manifest",
+  "description": "Authoritative record of one frozen test-set version: every file, its checksum/size, the generator identity, and its cold-archive DOI.",
+  "type": "object",
+  "required": ["schema_version", "testset_version", "generated_by", "datasets", "forking", "archive"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "testset_version": {
+      "type": "string",
+      "description": "Frozen version identifier, e.g. 2026.08.1. One DOI per version."
+    },
+    "generated_by": {
+      "type": "object",
+      "required": ["simulation_repo_commit", "simulation_controller_version", "seed_root"],
+      "properties": {
+        "simulation_repo_commit": { "type": "string", "description": "git commit of this repo used to generate" },
+        "simulation_controller_version": { "type": "string" },
+        "seed_root": { "type": "integer", "description": "root PRNG seed; per-dataset seeds derived deterministically" }
+      },
+      "additionalProperties": false
+    },
+    "datasets": {
+      "type": "array",
+      "description": "Files belonging to this frozen test set.",
+      "items": {
+        "type": "object",
+        "required": ["dataset_id", "uri", "md5", "size"],
+        "properties": {
+          "dataset_id": { "type": "string" },
+          "uri": { "type": "string", "description": "tier-2 path (gs://) or relative results path" },
+          "md5": { "type": "string" },
+          "size": { "type": "integer" },
+          "real_source_accessions": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "for real-read datasets: SRA/ENA accessions referenced, not re-hosted"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "forking": {
+      "type": "object",
+      "description": "Signals for the harness: run all, or only subsets.",
+      "properties": {
+        "default_only": { "type": "boolean", "default": true },
+        "full_cross_regenerable": { "type": "boolean", "default": true },
+        "notes": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "archive": {
+      "type": "object",
+      "required": ["doi", "location"],
+      "properties": {
+        "doi": { "type": "string", "description": "Zenodo/Dryad DOI for this frozen version" },
+        "location": { "enum": ["zenodo", "dryad", "pending"] },
+        "permanent_download_uri": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "changes_since_previous": {
+      "type": "string",
+      "description": "What changed vs prior frozen version (changelog)."
+    }
+  },
+  "additionalProperties": false
+}

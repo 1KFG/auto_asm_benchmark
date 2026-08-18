@@ -1,0 +1,31 @@
+# canaur_sim_mix_001: ploidy-mismatch robustness (haploid assumed, diploid reads)
+# Schema: schema/dataset.schema.json
+schema_version: "1.0"
+dataset_id: "canaur__illumina__med__high__none__mismatch__full"
+
+genome: "canaur"
+
+technology: "illumina"
+coverage: "medium"
+coverage_targets: { coverage_x: 30 }
+
+quality: "high"
+degradation: []
+
+contamination: {}
+
+ploidy:
+  expected: haploid
+  actual: diploid
+  note: "Reads generated from a heterozygous diploid mix while operator assumed haploid; tests haploid-assumption robustness."
+
+subset:
+  mode: "full"
+
+source_reads:
+  type: "simulated"
+  accessions: []
+  generator: "0.1.0"   # simulation controller version once created
+  seed: 20260806
+
+notes: "Ploidy-surprise unit (ADR-015 canaur_sim_mix_001). Decoupled from the old combo unit: contamination and degradation now live in their own single-tier units (canaur_sim_contam_*, canaur_sim_degrad_001); this one carries only the ploidy mismatch axis."

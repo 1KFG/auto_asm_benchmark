@@ -1,0 +1,24 @@
+# Canonical AAFTF parameter set
+# Reference for default_params in configs/tool_matrix.yaml (aaftf)
+# AAFTF is a shell (perl) workflow: trim -> filter -> assemble -> polish/annotate.
+# Exact keys are illustrative; align with your installed AAFTF version's options.
+
+pipeline: aaftf
+trim:
+  adapter: "PENDING"          # adapter file packaged with AAFTF
+  # e.g. --lefttrim 25 --righttrim 25
+filter:
+  keep_contigs_gt: 500
+  # e.g. --minlength 500
+assemble:
+  tool: "spades"               # AAFTF default assembler for short reads
+  kmer_range: "21,33,55,77"
+polish:
+  rounds: 2
+  tool: "pilon"
+contamination_screen:
+  enabled: false               # AAFTF doesn't screen contamination by default
+  note: "Screening is handled by the external contamination-detection layer when benchmarking robustness."
+
+threads: 8
+memory_gb: 64

@@ -1,0 +1,27 @@
+# Canonical MpGAP param set
+# Matches fmalmeida/MpGAP inputs (pinned by commit hash in tool_matrix.yaml)
+# Assembly mode is selected per-run by profile/reference; shortest/consensus
+# behavior is dataset-dependent and set in the params map below.
+pipeline: mpgap
+
+reads:
+  - "PENDING"        # samplesheet.yml / input yml per MpGAP --input schema
+
+params:
+  outdir: "results"
+  mode: "auto"       # auto | sreads | lreads | hybrid (decided from dataset tech at real run)
+  max_cpus: 16
+  max_memory: "64.GB"
+  min_read_length: 500
+  estimated_genome_size: null
+
+assemble:
+  tool: null          # null = MpGAP auto-selects by mode
+  kmer: null
+
+polish:
+  enabled: true
+  rounds: 2
+
+databases:
+  busco_lineage: "fungi_odb10"

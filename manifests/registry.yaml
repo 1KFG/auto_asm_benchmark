@@ -1,0 +1,103 @@
+# Dataset registry: short GCS folder id <-> full dataset_id <-> uri
+# Schema: schema/registry.schema.json
+# Held on the HPCC local host and mirrored into gs://stajichlab-asm-benchmarking/datasets/
+# Names are informative, NOT the source of truth; the full dataset_id is the source of truth.
+# seed_root recorded for simulated units (from source_reads.seed); real units have no seed.
+schema_version: "1.0"
+testset_version: "2026.08.1"
+
+entries:
+  # ---- simulated units (sim stressor vocabulary per ADR-013) ----
+  - folder_id: "yarlip_sim_001"
+    dataset_id: "yarlip__illumina__med__high__none__haploid__full"
+    uri: "gs://stajichlab-asm-benchmarking/datasets/yarlip_sim_001"
+    seed_root: 20260801
+
+  - folder_id: "canaur_sim_contam_lo_001"
+    dataset_id: "canaur__illumina__med__high__cocktail_0p1pct__haploid__full"
+    uri: "gs://stajichlab-asm-benchmarking/datasets/canaur_sim_contam_lo_001"
+    seed_root: 20260802
+
+  - folder_id: "canaur_sim_contam_md_001"
+    dataset_id: "canaur__illumina__med__high__cocktail_1pct__haploid__full"
+    uri: "gs://stajichlab-asm-benchmarking/datasets/canaur_sim_contam_md_001"
+    seed_root: 20260803
+
+  - folder_id: "canaur_sim_contam_hi_001"
+    dataset_id: "canaur__illumina__med__high__cocktail_5pct__haploid__full"
+    uri: "gs://stajichlab-asm-benchmarking/datasets/canaur_sim_contam_hi_001"
+    seed_root: 20260804
+
+  - folder_id: "canaur_sim_degrad_001"
+    dataset_id: "canaur__illumina__med__problematic__none__haploid__full"
+    uri: "gs://stajichlab-asm-benchmarking/datasets/canaur_sim_degrad_001"
+    seed_root: 20260805
+
+  - folder_id: "canaur_sim_mix_001"
+    dataset_id: "canaur__illumina__med__high__none__mismatch__full"
+    uri: "gs://stajichlab-asm-benchmarking/datasets/canaur_sim_mix_001"
+    seed_root: 20260806
+
+  - folder_id: "canaur_sim_adapter_001"
+    dataset_id: "canaur__illumina__med__problematic__adapter_spike__haploid__full"
+    uri: "gs://stajichlab-asm-benchmarking/datasets/canaur_sim_adapter_001"
+    seed_root: 20260807
+
+  - folder_id: "canaur_sim_carryover_001"
+    dataset_id: "canaur__illumina__med__problematic__adapter_carryover__haploid__full"
+    uri: "gs://stajichlab-asm-benchmarking/datasets/canaur_sim_carryover_001"
+    seed_root: 20260808
+
+  - folder_id: "canaur_sim_all_001"
+    dataset_id: "canaur__illumina__med__problematic__all_1pct__haploid__full"
+    uri: "gs://stajichlab-asm-benchmarking/datasets/canaur_sim_all_001"
+    seed_root: 20260809
+
+  - folder_id: "cryneo_sim_contam_lo_001"
+    dataset_id: "cryneo__hifi__med__high__symbiont_0p1pct_lambda_1pct__haploid__full"
+    uri: "gs://stajichlab-asm-benchmarking/datasets/cryneo_sim_contam_lo_001"
+    seed_root: 20260810
+
+  - folder_id: "cryneo_sim_contam_md_001"
+    dataset_id: "cryneo__hifi__med__high__symbiont_1pct_lambda_1pct__haploid__full"
+    uri: "gs://stajichlab-asm-benchmarking/datasets/cryneo_sim_contam_md_001"
+    seed_root: 20260811
+
+  - folder_id: "cryneo_sim_contam_hi_001"
+    dataset_id: "cryneo__hifi__med__high__symbiont_5pct_lambda_1pct__haploid__full"
+    uri: "gs://stajichlab-asm-benchmarking/datasets/cryneo_sim_contam_hi_001"
+    seed_root: 20260812
+
+  - folder_id: "zymtri_sim_chr1_001"
+    dataset_id: "zymtri__illumina__low__medium__none__haploid__chr1_only"
+    uri: "gs://stajichlab-asm-benchmarking/datasets/zymtri_sim_chr1_001"
+    seed_root: 20260813
+
+  # ---- real / hybrid units (real_sra reads, no generation seed) ----
+  - folder_id: "yarlip_real_001"
+    dataset_id: "yarlip__nanopore__high__medium__none__haploid__full"
+    uri: "gs://stajichlab-asm-benchmarking/datasets/yarlip_real_001"
+
+  - folder_id: "yarlip_real_002"
+    dataset_id: "yarlip__dnbseq__medium__medium__none__haploid__full"
+    uri: "gs://stajichlab-asm-benchmarking/datasets/yarlip_real_002"
+
+  - folder_id: "cryneo_real_001"
+    dataset_id: "cryneo__illumina__high__medium__none__haploid__full"
+    uri: "gs://stajichlab-asm-benchmarking/datasets/cryneo_real_001"
+
+  - folder_id: "cryneo_real_hybrid_001"
+    dataset_id: "cryneo__hybrid__high__medium__none__haploid__full"
+    uri: "gs://stajichlab-asm-benchmarking/datasets/cryneo_real_hybrid_001"
+
+  - folder_id: "aspfum_real_hybrid_001"
+    dataset_id: "aspfum__hybrid__high__medium__none__haploid__full"
+    uri: "gs://stajichlab-asm-benchmarking/datasets/aspfum_real_hybrid_001"
+
+  - folder_id: "aspfum_real_003"
+    dataset_id: "aspfum__hifi__medium__medium__none__haploid__full"
+    uri: "gs://stajichlab-asm-benchmarking/datasets/aspfum_real_003"
+
+  - folder_id: "rhimic_real_001"
+    dataset_id: "rhimic__illumina__high__medium__symbiont__haploid__full"
+    uri: "gs://stajichlab-asm-benchmarking/datasets/rhimic_real_001"

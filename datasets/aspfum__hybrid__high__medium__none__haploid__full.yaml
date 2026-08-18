@@ -1,0 +1,30 @@
+# aspfum_real_hybrid_001: real hybrid reads, Aspergillus fumigatus ATCC 42202 (ONT + Illumina)
+# Schema: schema/dataset.schema.json
+schema_version: "1.0"
+dataset_id: "aspfum__hybrid__high__medium__none__haploid__full"
+
+genome: "aspfum"
+
+technology: "hybrid"
+coverage: "high"          # estimate; verify from SRA metadata at curation
+coverage_targets: {}      # real reads: coverage is whatever the runs gave
+
+quality: "medium"
+
+contamination:
+  observed: {}            # populated by one-time read-screen (ADR-017)
+
+ploidy:
+  expected: haploid
+  actual: haploid
+
+subset:
+  mode: "full"
+
+source_reads:
+  type: "real_sra"
+  accessions: ["SRR28035763", "SRR28035764"]   # ONT + Illumina of ATCC 42202
+  generator: null
+  seed: null
+
+notes: "ADR-016 aspfum_real_hybrid_001: hybrid (ONT + Illumina) reads of A. fumigatus ATCC 42202 (SRR28035763+SRR28035764), truth Af293. ATCC 42202 finished assembly excluded (circular); CEA10 PacBio = future option. contamination.observed filled by the curated read-screen."

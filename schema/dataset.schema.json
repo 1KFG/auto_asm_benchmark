@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/jstajich/auto_asm_benchmark/schema/dataset.schema.json",
+  "title": "Benchmark Dataset Work-Unit",
+  "description": "One frozen, immutable benchmark input: reference genome + reads + declared scenario axes + provenance.",
+  "type": "object",
+  "required": ["schema_version", "dataset_id", "genome", "technology", "coverage", "quality", "contamination", "ploidy", "subset"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "dataset_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+__[a-z0-9_]+__[a-z0-9_]+__[a-z0-9_]+__[a-z0-9_]+__[a-z0-9_]+__[a-z0-9_]+$",
+      "description": "Naming: <genome_id>__<tech>__<cov>__<quality>__<contam>__<ploidy>__<subset>"
+    },
+    "genome": {
+      "type": "string",
+      "description": "id key into assets/genomes.yaml"
+    },
+    "technology": {
+      "enum": ["illumina", "dnbseq", "hifi", "nanopore", "nanopore_polish", "hybrid"],
+      "description": "Sequencing technology"
+    },
+    "coverage": { "enum": ["low", "medium", "high"] },
+    "coverage_targets": {
+      "type": "object",
+      "description": "Optional explicit coverage targets per technique; overrides defaults.",
+      "properties": { "coverage_x": { "type": "number" } },
+      "additionalProperties": true
+    },
+    "quality": { "enum": ["high", "medium", "problematic"] },
+    "degradation": {
+      "type": "array",
+      "description": "Exact degradation mechanisms applied synthetically.",
+      "items": {
+        "type": "object",
+        "required": ["mechanism"],
+        "properties": {
+          "mechanism": { "enum": ["qscore_floor", "offbias_trim", "fragment_shorten", "miscall_rate", "chimeras", "coverage_drop", "adapter_only", "adapter_carryover"] },
+          "params": { "type": "object", "description": "mechanism-specific parameters" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "contamination": {
+      "type": "object",
+      "properties": {
+        "spikes": {
+          "type": "array",
+          "description": "Contaminant sources injected at fractions of host read yield.",
+          "items": {
+            "type": "object",
+            "required": ["source", "fraction"],
+            "properties": {
+              "source": {
+                "enum": ["phix", "vector", "ecoli", "env_bact", "symbiont", "host_plant", "host_animal", "fungus_other", "rdna_mito", "phage"]
+              },
+              "fraction": { "type": "number", "minimum": 0, "maximum": 1 },
+              "accession": { "type": "string", "description": "contaminant reference accession" },
+              "detail": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "observed": {
+          "type": "object",
+          "description": "Real-SRA read-screen results at curation time (ADR-017), e.g. kraken2 family-level fractions. Populated for real_* units; absent for simulated.",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "ploidy": {
+      "type": "object",
+      "required": ["expected", "actual"],
+      "properties": {
+        "expected": { "enum": ["haploid", "diploid"] },
+        "actual": { "enum": ["haploid", "diploid"] },
+        "note": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "subset": {
+      "type": "object",
+      "properties": {
+        "mode": { "enum": ["full", "single_chromosome"] },
+        "chromosome": { "type": "string", "description": "required when mode=single_chromosome" }
+      },
+      "required": ["mode"],
+      "additionalProperties": false
+    },
+    "source_reads": {
+      "description": "For real-read datasets: where the raw reads came from (accessions). For simulated: generated.",
+      "type": "object",
+      "properties": {
+        "type": { "enum": ["real_sra", "simulated"] },
+        "accessions": { "type": "array", "items": { "type": "string" } },
+        "generator": { "type": ["string", "null"], "description": "simulation controller version (null for real-SRA)" },
+        "seed": { "type": ["integer", "null"], "description": "null for real-SRA datasets" }
+      },
+      "additionalProperties": false
+    },
+    "artifacts": {
+      "type": "array",
+      "description": "Generated files with checksums (+size). Populated after generation; the manifest carries authoritative checksums.",
+      "items": {
+        "type": "object",
+        "required": ["path", "md5"],
+        "properties": {
+          "path": { "type": "string" },
+          "md5": { "type": "string" },
+          "size": { "type": "integer" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "notes": { "type": "string" }
+  },
+  "additionalProperties": false
+}

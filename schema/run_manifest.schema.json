@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/jstajich/auto_asm_benchmark/schema/run_manifest.schema.json",
+  "title": "Run Manifest (per benchmark run)",
+  "description": "Declared outputs of one pipeline-over-dataset run, emitted by an adapter into the results directory. Ties metrics to provenance.",
+  "type": "object",
+  "required": ["run_uuid", "dataset_id", "pipeline_id", "outcome_state", "outputs", "provenance"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "run_uuid": { "type": "string", "description": "stable run identifier" },
+    "dataset_id": { "type": "string" },
+    "pipeline_id": { "type": "string", "description": "key into configs/tool_matrix.yaml" },
+    "frozen_testset_version": { "type": "string" },
+    "outcome_state": { "enum": ["success", "partial", "failed", "blocked", "skipped"] },
+    "exit_code": { "type": "integer", "description": "adapter/process exit code" },
+    "wall_clock_s": { "type": "number" },
+    "peak_rss_bytes": { "type": "number" },
+    "cpu_hours": { "type": "number" },
+    "outputs": {
+      "type": "array",
+      "description": "Produced files (assemblies, intermediate outputs) with checksums.",
+      "items": {
+        "type": "object",
+        "required": ["path", "md5"],
+        "properties": {
+          "path": { "type": "string" },
+          "md5": { "type": "string" },
+          "size": { "type": "integer" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "description": "Path(s) to metrics/*.json emitted in the results dir.",
+      "additionalProperties": true
+    },
+    "provenance": {
+      "type": "object",
+      "description": "Snapshot: tool versions, container digests, workflow commit hashes, conda lockfiles, DB versions, truth accession, generator info.",
+      "required": ["truth_accession", "pipeline"],
+      "properties": {
+        "truth_accession": { "type": "string" },
+        "pipeline": {
+          "type": "object",
+          "required": ["id", "type", "version_pin"],
+          "properties": {
+            "id": { "type": "string" },
+            "type": { "enum": ["nextflow", "snakemake", "conda"] },
+            "version_pin": { "type": "string", "description": "container digest / commit hash / env lockfile ref" },
+            "params_file": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        "databases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "version"],
+            "properties": { "name": { "type": "string" }, "version": { "type": "string" } },
+            "additionalProperties": false
+          }
+        },
+        "generator": {
+          "type": "object",
+          "properties": {
+            "simulation_controller_version": { "type": "string" },
+            "seed": { "type": "integer" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

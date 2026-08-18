@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/jstajich/auto_asm_benchmark/schema/genomes.schema.json",
+  "title": "Backbone Truth-Genome Registry",
+  "description": "Registry of host/truth reference genomes for benchmark datasets, grounded in NCBI assembly records.",
+  "type": "object",
+  "required": ["schema_version", "genomes"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "genomes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "species", "strain", "taxonomy", "accession", "assembly_level"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9_]+$" },
+          "species": { "type": "string" },
+          "strain": { "type": "string" },
+          "taxonomy": {
+            "type": "object",
+            "required": ["kingdom", "phylum", "class"],
+            "properties": {
+              "kingdom": { "type": "string" },
+              "phylum": { "type": "string" },
+              "class": { "type": "string" },
+              "order": { "type": "string" }
+            },
+            "additionalProperties": false
+          },
+          "archetype": { "type": "string", "description": "e.g. Yeast (T2T), Heavy repeat/complex" },
+          "accession": { "type": "string" },
+          "assembly_name": { "type": "string" },
+          "assembly_level": { "enum": ["Complete Genome", "Chromosome", "Contig", "Scaffold"] },
+          "contig_n50": { "type": "integer" },
+          "total_length": { "type": "integer" },
+          "alternatives": {
+            "type": "array",
+            "description": "Alternate primary-slots (e.g. alternate T2T strain), NOT auxiliaries.",
+            "items": {
+              "type": "object",
+              "required": ["accession"],
+              "properties": {
+                "id": { "type": "string" },
+                "accession": { "type": "string" },
+                "assembly_name": { "type": "string" },
+                "assembly_level": { "enum": ["Complete Genome", "Chromosome", "Contig", "Scaffold"] },
+                "contig_n50": { "type": "integer" },
+                "total_length": { "type": "integer" },
+                "notes": { "type": "string" }
+              },
+              "additionalProperties": false
+            }
+          },
+          "notes": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "auxiliary": {
+      "type": "array",
+      "description": "Non-primary genomes for cross-checks (e.g., chromosome-validity), not truth for the main benchmark.",
+      "items": {
+        "type": "object",
+        "required": ["id", "species", "accession"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9_]+$" },
+          "species": { "type": "string" },
+          "strain": { "type": "string" },
+          "accession": { "type": "string" },
+          "assembly_level": { "enum": ["Complete Genome", "Chromosome", "Contig", "Scaffold"] },
+          "contig_n50": { "type": "integer" },
+          "notes": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "excluded_note": { "type": "string" },
+    "expansion_notes": { "type": "array", "items": { "type": "string" } }
+  },
+  "additionalProperties": false
+}

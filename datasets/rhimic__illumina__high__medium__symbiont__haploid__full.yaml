@@ -1,0 +1,33 @@
+# rhimic_real_001: real host+symbiont reads, Rhizopus microsporus (+ Mycetohabitans symbiont)
+# Schema: schema/dataset.schema.json
+schema_version: "1.0"
+dataset_id: "rhimic__illumina__high__medium__symbiont__haploid__full"
+
+genome: "rhimic"
+
+technology: "illumina"
+coverage: "high"          # estimate; verify from SRA metadata at curation
+coverage_targets: {}      # real reads: coverage is whatever the run gave
+
+quality: "medium"
+
+contamination:
+  observed:
+    source: "symbiont"
+    accession: "GCF_037389205.1"
+    detail: "Mycetohabitans sp. B46, the natural endosymbiont of R. microsporus NRRL 5546 (host strain of SRR9029155). Fraction to be measured by curated read-screen per ADR-017."
+
+ploidy:
+  expected: haploid
+  actual: haploid
+
+subset:
+  mode: "full"
+
+source_reads:
+  type: "real_sra"
+  accessions: ["SRR9029155"]
+  generator: null
+  seed: null
+
+notes: "ADR-016 rhimic_real_001: JGI resequencing reads of R. microsporus NRRL 5546 (SRR9029155); no public assembly exists for NRRL 5546. Host truth anchored to GCF_002708625.1 (ATCC 52813, species reference 'Rhimi1_1') with an explicit strain-mismatch caveat; symbiont Mycetohabitans sp. B46 (GCF_037389205.1) is confirmed as NRRL 5546's natural endosymbiont. Real reads, never re-hosted; cached on demand."

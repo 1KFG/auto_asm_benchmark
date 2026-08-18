@@ -1,0 +1,30 @@
+# cryneo_real_hybrid_001: real hybrid reads, Cryptococcus neoformans Bt63a (PacBio + Illumina)
+# Schema: schema/dataset.schema.json
+schema_version: "1.0"
+dataset_id: "cryneo__hybrid__high__medium__none__haploid__full"
+
+genome: "cryneo"
+
+technology: "hybrid"
+coverage: "high"          # estimate; verify from SRA metadata at curation
+coverage_targets: {}      # real reads: coverage is whatever the runs gave
+
+quality: "medium"
+
+contamination:
+  observed: {}            # populated by one-time read-screen (ADR-017)
+
+ploidy:
+  expected: haploid
+  actual: haploid
+
+subset:
+  mode: "full"
+
+source_reads:
+  type: "real_sra"
+  accessions: ["SRR13201975", "SRR13201974"]   # PacBio + Illumina of Bt63a
+  generator: null
+  seed: null
+
+notes: "ADR-016 cryneo_real_hybrid_001: hybrid (PacBio + Illumina) reads of C. neoformans Bt63a (SRR13201975+SRR13201974), truth H99 CNA3; Bt63a reference lives in NCBI/BFD/1KFG. Hybrid unit merges strain x tech; can be split into single-tech units later (registry-level). contamination.observed filled by the curated read-screen."

@@ -1,0 +1,28 @@
+# Canonical SPAdes short-read pipeline param set
+pipeline: spades_pipeline
+technology: short_read
+
+qc_trim:
+  tool: fastp
+  params:
+    trim_front1: 0
+    trim_tail1: 15
+    qualified_quality_phred: 20
+    length_required: 36
+    detect_adapter_for_pe: true
+
+assemble:
+  tool: spades
+  params:
+    cov_cutoff: auto
+    k: [21, 33, 55, 77]
+    careful: false             # careful mode is slow; off for benchmark by default
+    isolate: true              # fungal single-genome assemblies
+
+polish:
+  tool: pilon
+  rounds: 1
+  notes: "polish against mapped reads; requires the truth or draft reference"
+
+threads: 8
+memory_gb: 64

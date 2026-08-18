@@ -1,0 +1,110 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/jstajich/auto_asm_benchmark/schema/tool_matrix.schema.json",
+  "title": "Pipeline Under Test (POT) Matrix",
+  "description": "Declarative registry of (a) pipelines benchmarked as atomic units, and (b) evaluation tools used by the harness to score assemblies, both with two-layer version pinning.",
+  "type": "object",
+  "required": ["schema_version", "pipelines"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "pipelines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "type", "execution"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9_]+$" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "type": { "enum": ["nextflow", "snakemake", "conda"] },
+          "execution": {
+            "type": "object",
+            "required": ["adapter"],
+            "properties": {
+              "adapter": { "type": "string", "description": "path to the adapter run.sh; adapter contract: dataset dir + params.yaml in; results + run_manifest.json out" },
+              "env_management": { "enum": ["container", "conda", "pixi"] },
+              "container_pin": { "type": "string", "description": "registry digest, MUST NOT be a bare tag" },
+              "env_pin": { "type": "string", "description": "conda env.lock.yaml or pixi.lock path" },
+              "executable": { "type": "string" },
+              "source": { "enum": ["external", "inrepo"] },
+              "repo": { "type": "string" },
+              "commit": { "type": "string", "description": "workflow git commit hash pin" },
+              "revision": { "type": "string" },
+              "tools": { "type": "array", "items": { "type": "string" }, "description": "constituent step tools for provenance" }
+            },
+            "additionalProperties": false
+          },
+          "pins": {
+            "type": "object",
+            "additionalProperties": { "type": "string" },
+            "description": "free-form additional pins"
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "default": { "type": "string", "description": "path to canonical params yaml" }
+            },
+            "additionalProperties": false
+          },
+          "databases": {
+            "type": "array",
+            "description": "reference/classification databases used (Kraken2 DB, BUSCO lineage), version-pinned.",
+            "items": {
+              "type": "object",
+              "required": ["name"],
+              "properties": {
+                "name": { "type": "string" },
+                "version": { "type": "string" }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "eval_tools": {
+      "type": "array",
+      "description": "Harness evaluation tools (NOT pipelines under test): metrics/screening/QC used to score assemblies regardless of pipeline cleanup stage (e.g. quast, busco, sauge, minimap2, samtools, FCS_screen, FCS-GX, kraken2-eval). Each is version-pinned.",
+      "items": {
+        "type": "object",
+        "required": ["id", "role"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9_\\-]+$" },
+          "role": { "enum": ["contiguity", "completeness", "contamination_oracle", "contamination_screen", "reads_mapping", "coverage", "resources", "other"] },
+          "container_pin": { "type": "string", "description": "registry digest, MUST NOT be a bare tag" },
+          "version": { "type": "string" },
+          "databases": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name"],
+              "properties": { "name": { "type": "string" }, "version": { "type": "string" } },
+              "additionalProperties": false
+            }
+          },
+          "notes": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "sim_tools": {
+      "type": "array",
+      "description": "Read/structure simulators used by the dataset generator (NOT pipelines under test, NOT eval tools): e.g. art, badread. Version-pinned same as eval_tools.",
+      "items": {
+        "type": "object",
+        "required": ["id", "role"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9_\\-]+$" },
+          "role": { "enum": ["illumina", "dnbseq", "hifi", "nanopore", "nanopore_polish", "hybrid", "ont", "pacbio", "other"] },
+          "container_pin": { "type": "string", "description": "registry digest, MUST NOT be a bare tag" },
+          "version": { "type": "string" },
+          "notes": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "review_notes": { "type": "array", "items": { "type": "string" } }
+  },
+  "additionalProperties": false
+}

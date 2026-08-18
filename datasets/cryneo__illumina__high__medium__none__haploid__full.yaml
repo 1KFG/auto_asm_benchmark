@@ -1,0 +1,30 @@
+# cryneo_real_001: real Illumina reads, Cryptococcus neoformans H99 (truth H99)
+# Schema: schema/dataset.schema.json
+schema_version: "1.0"
+dataset_id: "cryneo__illumina__high__medium__none__haploid__full"
+
+genome: "cryneo"
+
+technology: "illumina"
+coverage: "high"          # estimate; verify from SRA metadata at curation
+coverage_targets: {}      # real reads: coverage is whatever the run gave
+
+quality: "medium"
+
+contamination:
+  observed: {}            # populated by one-time read-screen (ADR-017)
+
+ploidy:
+  expected: haploid
+  actual: haploid
+
+subset:
+  mode: "full"
+
+source_reads:
+  type: "real_sra"
+  accessions: ["SRR36664817"]
+  generator: null
+  seed: null
+
+notes: "ADR-016 cryneo_real_001: Illumina reads of C. neoformans H99 (SRR36664817), truth H99 (canonical). Real reads, never re-hosted; cached on demand. contamination.observed filled by the curated read-screen."

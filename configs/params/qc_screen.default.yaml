@@ -1,0 +1,29 @@
+# Canonical QC/trim + contamination-screening toolkit param set
+pipeline: fastp_kraken_trim
+technology: any
+
+qc_trim:
+  tool: fastp
+  params:
+    trim_front1: 0
+    trim_tail1: 15
+    qualified_quality_phred: 20
+    length_required: 36
+
+contamination_screen:
+  tool: kraken2
+  params:
+    confidence: 0.1
+    threads: 8
+  database:
+    name: "kraken2_standard_fungal_plus"
+    version: "PENDING"
+    note: "pin exact DB build + minimizer parameters for reproducibility"
+  report_levels: ["phylum", "genus", "species"]
+
+fastqc:
+  run_before: true
+  run_after: true
+
+threads: 8
+memory_gb: 64
