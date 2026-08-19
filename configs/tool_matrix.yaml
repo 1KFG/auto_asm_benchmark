@@ -120,16 +120,17 @@ pipelines:
   - id: flye_pipeline
     name: "Flye long-read assembly + polishing chain"
     type: "conda"
-    description: "HiFi / Nanopore single-genome assembly (flye + racon/medaka + nextpolish)."
+    description: "HiFi / Nanopore single-genome assembly: fastplong trim -> flye (internal iterative polish) -> optional racon round -> AAFTF sourpurge/rmdup/sort (contig-level cleanup; vecscreen deliberately excluded -- it misfires on whole-chromosome-scale long-read contigs)."
     execution:
       env_management: "container"
-      container_pin: "ghcr.io/stajichlab/aaftf@sha256:0c498d122b8fefceef5918e720d7b1c27bb8666a8ce6a3d172f83d316ac67864"   # flye/racon step in AAFTF; medaka/nextpolish in separate biocontainers (see pins)
+      container_pin: "ghcr.io/stajichlab/aaftf@sha256:0c498d122b8fefceef5918e720d7b1c27bb8666a8ce6a3d172f83d316ac67864"   # flye/racon/minimap2 + AAFTF cleanup chain; fastplong/medaka/nextpolish in separate biocontainers (see pins)
       executable: "flye"
       adapter: "adapters/flye_pipeline/run.sh"
-      tools: ["flye", "minimap2", "samtools", "racon", "medaka", "nextpolish"]
+      tools: ["fastplong", "flye", "minimap2", "samtools", "racon", "medaka", "nextpolish"]
     pins:
-      medaka: "quay.io/biocontainers/medaka@sha256:18d5d73aa7f0aa70d0f623c4d34ce83ca791ba9c14c751bb3ed5d3452a8fb4c3"        # 2.2.2
-      nextpolish: "quay.io/biocontainers/nextpolish@sha256:b44db193cb1823f3465f621125abd52aa343570374f6ac6274829c3fcf5b52fb"  # 1.4.1
+      fastplong: "quay.io/biocontainers/fastplong@sha256:4a2b718c7120cdf9ebf11ea427bc91b1565e62bdf7c04f77265fd9c4f4f05dc7"  # 0.7.0 -- long-read (ONT/PacBio) QC/adapter trim, fastp's sibling tool
+      medaka: "quay.io/biocontainers/medaka@sha256:18d5d73aa7f0aa70d0f623c4d34ce83ca791ba9c14c751bb3ed5d3452a8fb4c3"        # 2.2.2 -- ONT-only polish; NOT wired into the adapter yet (no ONT fixture to validate against)
+      nextpolish: "quay.io/biocontainers/nextpolish@sha256:b44db193cb1823f3465f621125abd52aa343570374f6ac6274829c3fcf5b52fb"  # 1.4.1 -- NOT wired into the adapter yet (same reason)
     params:
       default: "configs/params/flye.default.yaml"
     databases:
@@ -138,14 +139,15 @@ pipelines:
   - id: hifiasm_pipeline
     name: "hifiasm HiFi assembly"
     type: "conda"
-    description: "HiFi-only assembler with haplotype resolution (-1 for haploid, default for diploid)."
+    description: "HiFi-only assembler: fastplong trim -> hifiasm primary contigs (gfa2fa) -> AAFTF sourpurge/rmdup/sort (contig-level cleanup; vecscreen deliberately excluded -- see flye_pipeline note)."
     execution:
       env_management: "container"
-      container_pin: "ghcr.io/stajichlab/aaftf@sha256:0c498d122b8fefceef5918e720d7b1c27bb8666a8ce6a3d172f83d316ac67864"   # unified AAFTF digest (hifiasm 0.25.0)
+      container_pin: "ghcr.io/stajichlab/aaftf@sha256:0c498d122b8fefceef5918e720d7b1c27bb8666a8ce6a3d172f83d316ac67864"   # unified AAFTF digest (hifiasm 0.25.0 + gfatools + AAFTF cleanup chain)
       executable: "hifiasm"
       adapter: "adapters/hifiasm_pipeline/run.sh"
-      tools: ["hifiasm", "gfa2fa", "samtools"]
-    pins: {}
+      tools: ["fastplong", "hifiasm", "gfatools", "samtools"]
+    pins:
+      fastplong: "quay.io/biocontainers/fastplong@sha256:4a2b718c7120cdf9ebf11ea427bc91b1565e62bdf7c04f77265fd9c4f4f05dc7"  # 0.7.0 -- long-read QC/adapter trim
     params:
       default: "configs/params/hifiasm.default.yaml"
     databases:

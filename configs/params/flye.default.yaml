@@ -1,29 +1,48 @@
 # Canonical Flye long-read pipeline param set (HiFi / Nanopore)
+# The adapter runs: fastplong trim -> flye (internal iterative polish) ->
+# optional racon round -> AAFTF sourpurge/rmdup/sort (contig-level cleanup
+# chain, same AAFTF subcommands the short-read pipeline uses -- they just
+# take a FASTA, so they work regardless of which assembler produced it).
+# No vecscreen: on whole-chromosome-scale HiFi contigs it dropped entire
+# real host chromosomes as false-positive contamination (validated on
+# cryneo_sim_contam_hi_001); sourpurge's taxonomy-based purge alone was
+# clean on the same data.
 pipeline: flye_pipeline
 technology: long_read
 
-qc:
-  tool: chopper_or_nanoq          # nanopore length/quality filter; hifi passes through
-  params:
-    min_length: 1000
-    min_quality: 10
+trim:
+  tool: fastplong          # fastp's long-read (ONT/PacBio) sibling tool
+  min_length: 1000
+  min_quality: 10          # -q; HiFi reads are already high-accuracy, this just drops outliers
+  adapter_trimming: true   # fastplong auto-detects start/end adapters by default
 
 assemble:
   tool: flye
   params:
     # --nano-raw for simplex ONT, --pacbio-hifi for HiFi, --nano-hq for Q20 ONT
-    mode: "--pacbio-hifi"         # change per-dataset
-    iterations: 2
+    # the adapter overrides this per dataset from metadata.yaml's `technology`
+    # field when present; this is the fallback.
+    mode: "--pacbio-hifi"
+    iterations: 2          # flye's own internal polishing rounds
     min_overlap: 5000
-    meta: false                   # single-genome assembly
+    meta: false             # single-genome assembly
 
 polish:
-  - tool: racon
-    rounds: 2
+  racon:
+    enabled: true
+    rounds: 1               # extra round on top of flye's internal iterations
     aligner: minimap2
-  - tool: medaka_or_nextpolish
-    rounds: 1
-    note: "medaka for ONT; nextpolish for HiFi"
+  # medaka (ONT) and nextpolish are pinned in tool_matrix.yaml but NOT wired
+  # into the adapter yet -- no ONT fixture exists to validate against.
 
-threads: 16
-memory_gb: 128
+# reference database / phylum for AAFTF sourpurge (sourmash LCA) contamination
+# purge; the adapter overrides this per dataset (folder_id prefix), matching
+# adapters/aaftf/run.sh's PHYLA lookup.
+aaftf_db: "/bigdata/stajichlab/shared/lib/AAFTF_DB"
+phylum: ""
+
+sort:
+  min_contig_len: 500
+
+threads: 8
+memory_gb: 32

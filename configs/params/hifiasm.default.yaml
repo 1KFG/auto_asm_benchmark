@@ -1,17 +1,40 @@
 # Canonical hifiasm pipeline param set
+# The adapter runs: fastplong trim -> hifiasm (primary contigs) -> gfatools
+# gfa2fa -> AAFTF sourpurge/rmdup/sort (contig-level cleanup chain, same
+# AAFTF subcommands the short-read pipeline uses). No vecscreen: on
+# whole-chromosome-scale HiFi contigs it dropped entire real host
+# chromosomes as false-positive contamination (validated on
+# cryneo_sim_contam_hi_001); sourpurge's taxonomy-based purge alone was
+# clean on the same data.
 pipeline: hifiasm_pipeline
 technology: hifi
+
+trim:
+  tool: fastplong
+  min_length: 1000
+  min_quality: 10
+  adapter_trimming: true
 
 assemble:
   tool: hifiasm
   params:
-    # -1 for haploid-assuming; default (none) for diploid/haplotype-resolving
-    mode: "-1"                     # haploid mode default; change for ploidy-mismatch scenarios
-    primary_assembly: true
+    # hifiasm's -1/-2 flags are trio-partition k-mer dumps, NOT a haploid
+    # mode switch (an earlier version of this file assumed otherwise). Our
+    # sim genomes are haploid, so no trio/Hi-C partitioning is needed --
+    # just take the default primary-contig graph (*.bp.p_ctg.gfa).
+    purge_level: 0          # -l; 0 = no purge-dups (appropriate for haploid input)
 
 postprocess:
-  convert_gfa_to_fa: true          # run-gfa2fa or hifiasm output gfa in fasta
-  hap1_as_default: true            # if diploid mode, emit hap1 as primary
+  convert_gfa_to_fa: true   # gfatools gfa2fa on *.bp.p_ctg.gfa
 
-threads: 16
-memory_gb: 128
+# reference database / phylum for AAFTF sourpurge (sourmash LCA) contamination
+# purge; the adapter overrides this per dataset (folder_id prefix), matching
+# adapters/aaftf/run.sh's PHYLA lookup.
+aaftf_db: "/bigdata/stajichlab/shared/lib/AAFTF_DB"
+phylum: ""
+
+sort:
+  min_contig_len: 500
+
+threads: 8
+memory_gb: 32
