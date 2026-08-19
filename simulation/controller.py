@@ -102,12 +102,31 @@ def find_sif(sifs_dir, digest_prefix):
     raise SystemExit(f"no SIF for digest {digest_prefix} in {sifs_dir} (run scripts/pull_containers.sh)")
 
 
-def vcat(out_path, *in_paths):
-    """Concatenate plain-text FASTQ files into one (keeps sequencing order)."""
+def vcat(out_path, *labeled_paths):
+    """Concatenate plain-text FASTQ files into one, prefixing each read's ID
+    with a per-source tag to guarantee global uniqueness.
+
+    Host reads and each contamination spike's reads come from independent
+    simulator invocations (pbsim3, ART), each numbering its own reads from
+    scratch -- so e.g. every source's first read is "S1_1", and without
+    renaming, host and spike reads collide on identical IDs whenever
+    contamination is present. flye hard-errors on duplicate read IDs;
+    other tools accept them silently but downstream provenance/counting
+    becomes ambiguous either way.
+
+    labeled_paths: (tag, path) pairs, host first then spikes in order.
+    Called once per mate (R1/R2) with the same tag order both times, so a
+    pair's R1 and R2 headers get the same "<tag>_" prefix and stay matched.
+    """
     with open(out_path, "wb") as out:
-        for p in in_paths:
+        for tag, p in labeled_paths:
+            prefix = (tag + "_").encode()
             with open(p, "rb") as fh:
-                shutil.copyfileobj(fh, out)
+                for i, line in enumerate(fh):
+                    if i % 4 == 0:
+                        # header: b"@<id>[ <rest>]\n" -> b"@<tag>_<id>[ <rest>]\n"
+                        line = b"@" + prefix + line[1:]
+                    out.write(line)
     return out_path
 
 
@@ -250,10 +269,11 @@ def generate(ds, args):
                     spk.sample_contaminant_reads(str(cont_m), str(sample_path), hb,
                                                  spike["fraction"], seed)
                 selected[m].append(sample_path)
+        spike_tags = [f"cont{i}_{spike.get('source', f'spike{i}')}" for i, spike in enumerate(spikes)]
         merged = [work / f"merged_m{m}.fq" for m in range(len(host_mates))]
         for m in range(len(host_mates)):
             if not args.dry_run:
-                vcat(merged[m], host_mates[m], *selected[m])
+                vcat(merged[m], ("host", host_mates[m]), *zip(spike_tags, selected[m]))
             else:
                 merged[m] = None
     else:

@@ -12,6 +12,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from simulation import controller  # noqa: E402
 from simulation import degrade_quality as dq  # noqa: E402
 from simulation import simulate_reads as sr    # noqa: E402
 from simulation import spike_contamination as spk  # noqa: E402
@@ -189,6 +190,43 @@ class TestFastaRecords(unittest.TestCase):
             name, seq = next(sr.fasta_records(f))
             self.assertEqual(name, "h")
             self.assertEqual(seq, "ACGTACGT")
+
+
+class TestVcat(unittest.TestCase):
+    """Regression: host and each contamination spike are simulated by
+    independent pbsim3/ART invocations that each number reads from scratch
+    (e.g. every source's first read is "S1_1"), so naively concatenating
+    them collides on identical IDs. flye hard-errors on duplicate read IDs
+    (found running cryneo_sim_contam_hi_001 through flye_pipeline); vcat
+    must tag each source's reads to keep them globally unique.
+    """
+
+    def test_prefixes_ids_per_source_and_preserves_records(self):
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            host, cont, out = d / "host.fq", d / "cont.fq", d / "out.fq"
+            # both sources independently "restart" their own S1_1 naming
+            host.write_text("@S1_1 extra\nACGT\n+\nIIII\n@S1_2\nACGT\n+\nIIII\n")
+            cont.write_text("@S1_1\nTTTT\n+\nJJJJ\n")
+            controller.vcat(out, ("host", host), ("cont0_symbiont", cont))
+            lines = out.read_text().splitlines()
+            self.assertEqual(len(lines), 12)
+            self.assertEqual(lines[0], "@host_S1_1 extra")
+            self.assertEqual(lines[4], "@host_S1_2")
+            self.assertEqual(lines[8], "@cont0_symbiont_S1_1")
+            # sequence/plus/qual lines pass through untouched
+            self.assertEqual(lines[1:4], ["ACGT", "+", "IIII"])
+            self.assertEqual(lines[9:12], ["TTTT", "+", "JJJJ"])
+
+    def test_output_has_no_duplicate_ids_across_sources(self):
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            host, cont, out = d / "host.fq", d / "cont.fq", d / "out.fq"
+            host.write_text("@S1_1\nACGT\n+\nIIII\n")
+            cont.write_text("@S1_1\nTTTT\n+\nJJJJ\n")
+            controller.vcat(out, ("host", host), ("cont0", cont))
+            ids = out.read_text().splitlines()[0::4]
+            self.assertEqual(len(ids), len(set(ids)))
 
 
 if __name__ == "__main__":
