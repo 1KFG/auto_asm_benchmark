@@ -10,7 +10,7 @@
 #   BENCH_PARAMS, BENCH_SEED, BENCH_SMOKE (1/0), BENCH_SIFS_DIR
 #
 # Contract output:
-#   $BENCH_OUTDIR/assembly/*.fasta        primary assembly (one file minimum)
+#   $BENCH_OUTDIR/assembly/*.fasta.gz        primary assembly (one file minimum, gzip-compressed)
 #   $BENCH_OUTDIR/run_manifest.json       provenance + outcome (schema run_manifest.schema.json)
 #   $BENCH_OUTDIR/hifiasm_pipeline.log    step log (kept for debugging)
 #   exit codes: 0=success, 10=partial, nonzero=failure
@@ -271,17 +271,17 @@ if [ ! -s "${FINAL_FASTA}" ]; then
   finalize "failed"; exit 1
 fi
 
-OUT_FASTA="${ASSEMBLY_OUT}/${DATASET_ID}_hifiasm.fasta"
-cp "${FINAL_FASTA}" "${OUT_FASTA}"
+OUT_FASTA="${ASSEMBLY_OUT}/${DATASET_ID}_hifiasm.fasta.gz"
+gzip -c "${FINAL_FASTA}" > "${OUT_FASTA}"
 MD5=$(md5sum "${OUT_FASTA}" | cut -d' ' -f1)
 SIZE=$(stat -c%s "${OUT_FASTA}")
 METRICS_JSON=$(python3 - "$OUT_FASTA" <<'PY'
-import json, sys
+import gzip, json, sys
 fa = sys.argv[1]
 n = total = 0
 lengths = []
 cur = 0
-with open(fa) as fh:
+with gzip.open(fa, "rt") as fh:
     for line in fh:
         if line.startswith(">"):
             if cur: lengths.append(cur); n += 1
@@ -302,7 +302,7 @@ print(json.dumps({"assembly": {"n_contigs": n, "total_length": total,
 PY
 )
 RUN_UUID="hifiasm-${DATASET_ID}-$(date +%s)"
-OUTPUTS_JSON='[{"path": "assembly/'${DATASET_ID}'_hifiasm.fasta", "md5": "'${MD5}'", "size": '${SIZE}'}]'
+OUTPUTS_JSON='[{"path": "assembly/'${DATASET_ID}'_hifiasm.fasta.gz", "md5": "'${MD5}'", "size": '${SIZE}'}]'
 TRUTH_ACCESSION="none"
 finalize "success"
 echo "==> hifiasm_pipeline adapter done: ${OUT_FASTA} (${SIZE} bytes) ${METRICS_JSON}"

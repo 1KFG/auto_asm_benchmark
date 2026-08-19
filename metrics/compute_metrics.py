@@ -46,9 +46,12 @@ def main():
     out = args.out or (results / "metrics")
     out.mkdir(parents=True, exist_ok=True)
 
-    assemblies = sorted((results / "assembly").glob("*.fasta")) if (results / "assembly").exists() else []
-    if not assemblies:
-        assemblies = sorted(results.glob("*.fasta")) + sorted(results.glob("*.fa"))
+    # gzip-compressed where the adapter supports it (to save space); quast/
+    # busco/minimap2 all read .fasta.gz natively, no decompression needed here.
+    if (results / "assembly").exists():
+        assemblies = sorted((results / "assembly").glob("*.fasta")) + sorted((results / "assembly").glob("*.fasta.gz"))
+    else:
+        assemblies = sorted(results.glob("*.fasta")) + sorted(results.glob("*.fasta.gz")) + sorted(results.glob("*.fa"))
 
     metrics = {}
     for asm in assemblies:

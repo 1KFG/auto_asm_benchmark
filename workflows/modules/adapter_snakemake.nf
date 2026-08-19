@@ -8,14 +8,14 @@ process RUN_SNAKEMAKE_ADAPTER {
     stageInMode 'copy'
 
     publishDir path: { "${params.outdir}/${ds.folder_id}/${pl.id}" },
-        mode: 'copy', overwrite: true, pattern: '{assembly/*.fasta,run_manifest.json}'
+        mode: 'copy', overwrite: true, pattern: '{assembly/*.fasta,assembly/*.fasta.gz,run_manifest.json}'
 
     input:
     tuple val(ds), val(pl), path(adapter), path(params_file), path(tool_matrix), path(dataset_dir)
 
     output:
     tuple val(ds.folder_id), val(pl.id), path("${pl.id}__${ds.folder_id}/run_manifest.json"), emit: manifest
-    tuple val(ds.folder_id), val(pl.id), path("${pl.id}__${ds.folder_id}/assembly/*.fasta"), emit: assembly
+    tuple val(ds.folder_id), val(pl.id), path("${pl.id}__${ds.folder_id}/assembly/*.{fasta,fasta.gz}"), emit: assembly
 
     script:
     """

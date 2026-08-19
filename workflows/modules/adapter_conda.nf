@@ -2,7 +2,8 @@
 // Contract: each pipeline ships a fixed run.sh at pl.execution.adapter that:
 //   reads $BENCH_DATASET_DIR (resolved read dir), $BENCH_OUTDIR,
 //   $BENCH_TOOL_MATRIX, $BENCH_PARAMS
-//   writes $BENCH_OUTDIR/assembly/*.fasta and $BENCH_OUTDIR/run_manifest.json
+//   writes $BENCH_OUTDIR/assembly/*.fasta[.gz] and $BENCH_OUTDIR/run_manifest.json
+//   (gzip-compressed where the adapter supports it, to save space)
 //   returns 0 on success (partial), 10 on partial, nonzero on failure.
 //
 // IMPORTANT: never activate arbitrary user envs on the driver — env
@@ -15,14 +16,14 @@ process RUN_CONDA_ADAPTER {
     stageInMode 'copy'
 
     publishDir path: { "${params.outdir}/${ds.folder_id}/${pl.id}" },
-        mode: 'copy', overwrite: true, pattern: '{assembly/*.fasta,run_manifest.json}'
+        mode: 'copy', overwrite: true, pattern: '{assembly/*.fasta,assembly/*.fasta.gz,run_manifest.json}'
 
     input:
     tuple val(ds), val(pl), path(adapter), path(params_file), path(tool_matrix), path(dataset_dir)
 
     output:
     tuple val(ds.folder_id), val(pl.id), path("${pl.id}__${ds.folder_id}/run_manifest.json"), emit: manifest
-    tuple val(ds.folder_id), val(pl.id), path("${pl.id}__${ds.folder_id}/assembly/*.fasta"), emit: assembly
+    tuple val(ds.folder_id), val(pl.id), path("${pl.id}__${ds.folder_id}/assembly/*.{fasta,fasta.gz}"), emit: assembly
 
     script:
     """

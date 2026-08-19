@@ -13,7 +13,7 @@
 #   BENCH_PARAMS, BENCH_SEED, BENCH_SMOKE (1/0), BENCH_SIFS_DIR
 #
 # Contract output:
-#   $BENCH_OUTDIR/assembly/*.fasta        primary assembly (one file minimum)
+#   $BENCH_OUTDIR/assembly/*.fasta.gz        primary assembly (one file minimum, gzip-compressed)
 #   $BENCH_OUTDIR/run_manifest.json       provenance + outcome (schema run_manifest.schema.json)
 #   $BENCH_OUTDIR/aaftf_pipeline.log      AAFTF step log (kept for debugging)
 #   exit codes: 0=success, 10=partial, nonzero=failure
@@ -274,19 +274,19 @@ WALL_CLOCK_S=$(( $(date +%s) - START ))
 # ---------------------------------------------------------------------------
 FINAL_FASTA="${WORK_DIR}/${BASE}.final.fasta"
 if [ ${AAFTF_EXIT} -eq 0 ] && [ -s "${FINAL_FASTA}" ]; then
-  OUT_FASTA="${ASSEMBLY_OUT}/${DATASET_ID}_aaftf.fasta"
-  cp "${FINAL_FASTA}" "${OUT_FASTA}"
+  OUT_FASTA="${ASSEMBLY_OUT}/${DATASET_ID}_aaftf.fasta.gz"
+  gzip -c "${FINAL_FASTA}" > "${OUT_FASTA}"
   MD5=$(md5sum "${OUT_FASTA}" | cut -d' ' -f1)
   SIZE=$(stat -c%s "${OUT_FASTA}")
   # Real (cheap) assembly metrics from the final fasta, proving the metrics
   # path end-to-end: n_contigs, total_length, N50, largest.
   METRICS_JSON=$(MITO_STATE="${MITO_STATE}" python3 - "$OUT_FASTA" <<'PY'
-import json, os, sys
+import gzip, json, os, sys
 fa = sys.argv[1]
 n = total = 0
 lengths = []
 cur = 0
-with open(fa) as fh:
+with gzip.open(fa, "rt") as fh:
     for line in fh:
         if line.startswith(">"):
             if cur: lengths.append(cur); n += 1
@@ -310,7 +310,7 @@ print(json.dumps({
 PY
 )
   RUN_UUID="aaftf-${DATASET_ID}-$(date +%s)"
-  OUTPUTS_JSON='[{"path": "assembly/'${DATASET_ID}'_aaftf.fasta", "md5": "'${MD5}'", "size": '${SIZE}'}]'
+  OUTPUTS_JSON='[{"path": "assembly/'${DATASET_ID}'_aaftf.fasta.gz", "md5": "'${MD5}'", "size": '${SIZE}'}]'
   TRUTH_ACCESSION="none"
   finalize "success"
   echo "==> AAFTF adapter done: ${OUT_FASTA} (${SIZE} bytes) ${METRICS_JSON}"
