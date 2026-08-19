@@ -53,7 +53,7 @@ pipelines:
 
   - id: mpgap
     name: "fmalmeida/MpGAP"
-    description: "Generic multi-platform de novo genome assembly pipeline (Nextflow DSL2): Illumina-only, long-reads-only (ONT/PacBio), or hybrid modes. Wraps hifiasm, canu, flye, raven, shasta, wtdbg2, haslr, unicycler, spades, shovill, megahit + polishers (nanopolish/medaka/gcpp/polypolish/pilon) + quast/busco/multiqc QC. Pinned by commit hash + container digest."
+    description: "Generic multi-platform de novo genome assembly pipeline (Nextflow DSL2): Illumina-only, long-reads-only (ONT/PacBio), or hybrid modes. Wraps hifiasm, canu, flye, raven, shasta, wtdbg2, haslr, unicycler, spades, shovill, megahit + polishers (nanopolish/medaka/gcpp/polypolish/pilon) + quast/busco/multiqc QC. Publishes one assembly PER enabled assembler rather than auto-selecting a best one, so the adapter enables only spades by default (see configs/params/mpgap.default.yaml) to keep a single-primary-output comparison point. Pinned by commit hash + container digest; no SLURM profile of its own, runs local-executor inside the adapter's own sbatch allocation."
     type: "nextflow"
     execution:
       source: "external"       # call external published workflow, DO NOT vendor
@@ -76,19 +76,21 @@ pipelines:
 
   - id: egap
     name: "iPsychonaut/EGAP"
-    description: "Entheome Genome Assembly Pipeline — Python/conda orchestrator (EGAP.py) that auto-selects assemblers (MaSuRCA/Flye/SPAdes/hifiasm) by read type, polishes (racon/pilon/medaka), curates, decontaminates (Tiara) and runs BUSCO/QUAST QC. Ships an internal Nextflow partner (draft_assembly.nf) but is driven from the conda CLI; assembled via conda subprocesses. Pinned to bioconda egap==3.4.1 (git tag v3.4.1, which uses CSV input schema; HEAD migrated to TSV post-3.4.1)."
+    description: "Entheome Genome Assembly Pipeline — Python orchestrator (EGAP.py) that auto-selects assemblers (MaSuRCA/Flye/SPAdes/hifiasm) by read type, polishes (racon/pilon/medaka), curates, decontaminates (Tiara) and runs BUSCO/QUAST QC. Provisioned as the bioconda egap==3.4.1 biocontainer (ADR-004 content-addressed SIF) rather than a hand-built conda env; medaka (ONT-only) and tiara are NOT bundled in that image (see egap.pins) and aren't needed for our Illumina-only fixtures."
     type: "conda"
     execution:
       source: "external"       # call external published workflow, DO NOT vendor
       repo: "https://github.com/iPsychonaut/EGAP"
       commit: "cf28ffc6ccac4274ad82629d6a3fd86fe723fad2"   # git tag v3.4.1 (2026-05-27); = bioconda egap 3.4.1
       revision: "main"
-      env_management: "conda"
-      env_pin: "egap==3.4.1"    # bioconda package version (matches tag commit); conda env lock TBD in adapters/egap/
-      executable: "EGAP"        # on PATH from `conda install -c bioconda egap`
+      env_management: "container"
+      container_pin: "quay.io/biocontainers/egap@sha256:97fc84e42afd033105d29c7655f85042fa137e1bb9735de06648d4ccbe01f01b"  # 3.4.1--pyh106432d_0; bundles masurca/flye/spades/hifiasm/fastqc/quast/racon/pilon/compleasm/busco
+      executable: "EGAP"
       adapter: "adapters/egap/run.sh"
-      tools: ["egap", "masurca", "flye", "spades", "hifiasm", "fastqc", "quast", "compleasm", "bwa", "racon", "pilon", "medaka", "tiara"]
-    pins: {}
+      tools: ["egap", "masurca", "flye", "spades", "hifiasm", "fastqc", "quast", "compleasm", "bwa", "racon", "pilon"]
+    pins: {}   # medaka (ONT-only polish) and tiara (decontamination) are NOT bundled in the
+               # egap biocontainer and are not wired into the adapter (no ONT fixture to
+               # validate medaka against; tiara TODO). Add pins here if/when they're wired in.
     params:
       default: "configs/params/egap.default.yaml"
     databases:
@@ -114,6 +116,22 @@ pipelines:
     pins: {}
     params:
       default: "configs/params/spades.default.yaml"
+    databases:
+      - name: "none (assembler only)"
+
+  - id: shovill_pipeline
+    name: "Shovill short-read assembly"
+    type: "conda"
+    description: "Self-contained short-read pipeline (trim -> read correction -> stitching -> assemble -> pilon polish -> cleanup) in a single command; staphb/shovill image bundles spades/skesa/megahit/velvet + trimmomatic/lighter/flash/pilon. No contamination screening, like spades_pipeline -- another baseline assembler-only comparison point."
+    execution:
+      env_management: "container"
+      container_pin: "docker.io/staphb/shovill@sha256:8cfd03cf80960bad29b252cbf2d4b4004d7762c1d729bca0dd9e6a7544f9678b"  # resolved from the ':latest' tag (2026-08-19); pin by digest, not the floating tag
+      executable: "shovill"
+      adapter: "adapters/shovill_pipeline/run.sh"
+      tools: ["shovill", "spades", "skesa", "megahit", "velvet", "pilon", "trimmomatic", "lighter", "flash"]
+    pins: {}
+    params:
+      default: "configs/params/shovill.default.yaml"
     databases:
       - name: "none (assembler only)"
 
