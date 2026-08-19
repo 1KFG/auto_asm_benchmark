@@ -1,0 +1,16 @@
+# Canonical shovill pipeline param set (staphb/shovill container)
+# Shovill is a single self-contained command: trim (trimmomatic) -> read
+# correction (lighter) -> read stitching (flash) -> assemble -> polish
+# (pilon) -> contig cleanup, all in one invocation. No separate contig-level
+# cleanup chain needed (unlike the AAFTF-based pipelines).
+pipeline: shovill_pipeline
+
+assemble:
+  tool: spades          # spades | skesa | velvet | megahit
+  gsize: ""              # blank = autodetect from k-mer spectrum
+  depth: 150              # subsample to this depth; 0 = disable
+  trim: true               # enable adaptor trimming (OFF by default in shovill)
+  minlen: 0                 # 0 = auto (shovill drops contigs shorter than 2x shortest read)
+
+threads: 8
+memory_gb: 32
