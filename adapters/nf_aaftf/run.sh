@@ -14,7 +14,7 @@ set -euo pipefail
 
 echo "==> nf_aaftf adapter: dataset=$BENCH_DATASET_DIR out=$BENCH_OUTDIR smoke=${BENCH_SMOKE:-0}"
 
-REPO="https://github.com/stajichlab/nf_aaftf"
+REPO="https://github.com/stajichlab/nf_AAFTF"
 DATASET_ID="${BENCH_DATASET_DIR##*/}"
 # Resolve staged dirs to absolute paths up-front: later steps `cd` into
 # WORK_DIR, so relative subpaths would otherwise be misresolved from there
@@ -29,6 +29,8 @@ mkdir -p "${ASSEMBLY_OUT}" "${WORK_DIR}"
 
 RUN_UUID=""
 exit_code=0
+OUTPUTS_JSON='[]'
+METRICS_JSON='{}'
 
 finalize() {
   local state="$1"
@@ -41,14 +43,15 @@ finalize() {
   "outcome_state": "${state}",
   "exit_code": ${exit_code},
   "wall_clock_s": ${WALL_CLOCK_S:-0},
-  "outputs": ${OUTPUTS_JSON:-[]},
-  "metrics": {},
+  "outputs": ${OUTPUTS_JSON},
+  "metrics": ${METRICS_JSON},
   "provenance": {
     "truth_accession": "${TRUTH_ACCESSION:-none}",
     "pipeline": {
       "id": "nf_aaftf",
       "type": "nextflow",
       "version_pin": "${NF_AAFTF_COMMIT:-PENDING}",
+      "container_pin": "${AAFTF_SIF:+file://${AAFTF_SIF}}",
       "params_file": "${BENCH_PARAMS}"
     },
     "databases": [
@@ -90,10 +93,24 @@ NF_AAFTF_CONTAINER="$(printf '%s\n' "${NF_AAFTF_PINS}" | sed -n 2p)"
 : "${NF_AAFTF_COMMIT:=PENDING}"
 : "${NF_AAFTF_CONTAINER:=PENDING}"
 
-# Local pinned SIF (built by scripts/pull_containers.sh) or fall back to the
-# cluster-side canonical path used by nf_aaftf's own aaftf profile default.
+# Local pinned SIF (content-addressed in the repo cache built by
+# scripts/pull_containers.sh) or fall back to the cluster shared cache path
+# used by nf_AAFTF's own aaftf profile default.
+#
+# Prefer the exact filename derived from tool_matrix.yaml's container_pin
+# digest. Sorting the glob by filename (or even mtime) to guess "newest" is
+# unreliable — a digest is a content hash, not a monotonic version, so a
+# lexicographic sort can pick an OLDER stale SIF over the pinned one whenever
+# the new digest's hex prefix happens to sort earlier than an old one still
+# present in the cache (observed: old digest "d467..." > new digest
+# "0c49..." lexicographically, silently running the wrong container).
+SIFS_DIR="${BENCH_SIFS_DIR:-${BENCH_OUTDIR}/../../containers/sifs}"
+PIN_DIGEST="${NF_AAFTF_CONTAINER##*sha256:}"
+PINNED_SIF="${SIFS_DIR}/ghcr.io_stajichlab_aaftf__${PIN_DIGEST:0:12}.sif"
 SIF_CANDIDATES=(
-  "${BENCH_SIFS_DIR:-${BENCH_OUTDIR}/../../containers/sifs}/stajichlab_aaftf__87f64c73576aaf.sif"
+  "${PINNED_SIF}"
+  $(ls -t "${SIFS_DIR}"/ghcr.io_stajichlab_aaftf__*.sif 2>/dev/null | head -1 || true)
+  "/bigdata/stajichlab/shared/lib/singularity_cache/AAFTF-latest.sif"
   "/bigdata/stajichlab/shared/lib/singularity_cache/AAFTF.sif"
 )
 AAFTF_SIF=""
@@ -136,29 +153,42 @@ printf 'sample,read_1,read_2,taxid\n%s,%s,%s,%s\n' \
   "${DATASET_ID}" "${R1_NAME}" "${R2_NAME}" "${TAXID}" > "${CSV}"
 echo "==> samples.csv: $(cat "${CSV}")"
 
-# ── Overlay config (fixes aaftf_db/aaaftf_db bind path inside container) ─
-OVERLAY="${WORK_DIR}/aaftf_db_overlay.config"
-cat > "${OVERLAY}" <<'CFG'
-singularity {
-    runOptions = "--bind ${params.aaftf_db}:/opt/aaftf_db,${params.aaftf_db}:/opt/aaaftf_db,${params.taxondb}:${params.taxondb},/dev/shm:/dev/shm"
-}
-CFG
-
 # ── Run nested Nextflow workflow (pinned commit) ────────────────────────
+# No -c overlay needed: nf_AAFTF's own conf/profile_aaftf.config already
+# binds the host AAFTF_DB to /opt/aaftf_db (single, correct spelling) now
+# that the upstream aaaftf typo is fixed (both in the AAFTF image and in
+# nf_AAFTF's FILTER/SOURPURGE/VECSCREEN modules). An earlier overlay config
+# duplicated that bind via a separate -c file, but at the point Nextflow
+# parses a -c file, ${params.taxondb} isn't resolved yet relative to the
+# profile's own params block, so it came through as the literal string
+# "null" and broke the mount ("unable to add null to mount list").
+#
+# Profile override for cheap dev validation: NF_AAFTF_PROFILE=test with
+# NF_AAFTF_EXTRA="-stub-run --n_test 2" exercises the wiring end-to-end without
+# SLURM/containers/DBs (nf_AAFTF's own conf/test.config); default profile
+# 'aaftf' is the real SLURM + singularity run.
+#
+# --vector_screen_method vecscreen overrides the profile's own default
+# ('fcs_screen'). fcs_screen shells out to NCBI's run_fcsadaptor.sh, which
+# launches a SECOND singularity container from inside the AAFTF container
+# (nested containerization) — but singularity/apptainer isn't installed
+# inside the AAFTF image, so it always fails ("cleaned_sequences/... not
+# found" — run_fcsadaptor.sh silently produced no output). vecscreen (plain
+# BLASTN against UniVec + contaminant DBs, all inside the one container) is
+# nf_AAFTF's other documented vector-screening option and needs no nesting.
 START=$(date +%s)
 (
   cd "${WORK_DIR}"
   ln -sf "${READS_DIR}" "${WORK_DIR}/reads"
   nextflow run "${REPO}" -r "${NF_AAFTF_COMMIT}" \
-    -profile aaftf \
-    -c "${OVERLAY}" \
+    -profile "${NF_AAFTF_PROFILE:-aaftf}" \
     --samples "${WORK_DIR}/samples.csv" \
     --indir "${WORK_DIR}/reads" \
     --outdir "${WORK_DIR}/results" \
     --aaftf_sif "${AAFTF_SIF}" \
-    --aaftf_db /bigdata/stajichlab/shared/lib/AAFTF_DB \
-    --taxondb /srv/projects/db/taxonomy \
-    $( [ -n "${NF_AAATF_RESUME:-}" ] && echo "-resume" )
+    --vector_screen_method vecscreen \
+    ${NF_AAFTF_EXTRA:-} \
+    $( [ -n "${NF_AAFTF_RESUME:-}" ] && echo "-resume" )
 )
 NF_EXIT=$?
 WALL_CLOCK_S=$(( $(date +%s) - START ))
@@ -184,6 +214,32 @@ OUT_FASTA="${ASSEMBLY_OUT}/${DATASET_ID}_nf_aaftf.fasta"
 cp "${SORTED_FASTA}" "${OUT_FASTA}"
 MD5=$(md5sum "${OUT_FASTA}" | cut -d' ' -f1)
 SIZE=$(stat -c%s "${OUT_FASTA}")
+METRICS_JSON=$(python3 - "$OUT_FASTA" <<'PY'
+import json, sys
+fa = sys.argv[1]
+n = total = 0
+lengths = []
+cur = 0
+with open(fa) as fh:
+    for line in fh:
+        if line.startswith(">"):
+            if cur: lengths.append(cur); n += 1
+            cur = 0
+        else:
+            cur += len(line.strip())
+if cur: lengths.append(cur); n += 1
+lengths.sort(reverse=True)
+total = sum(lengths)
+half = total / 2
+csum = 0; n50 = 0
+for L in lengths:
+    csum += L
+    if csum >= half:
+        n50 = L; break
+print(json.dumps({"assembly": {"n_contigs": n, "total_length": total,
+                               "N50": n50, "largest_contig": lengths[0] if lengths else 0}}))
+PY
+)
 RUN_UUID="nfaaftf-${DATASET_ID}-$(date +%s)"
 OUTPUTS_JSON='[{"path": "assembly/'${DATASET_ID}'_nf_aaftf.fasta", "md5": "'${MD5}'", "size": '${SIZE}'}]'
 TRUTH_ACCESSION="none"

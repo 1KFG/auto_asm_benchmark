@@ -48,6 +48,8 @@
             "id": { "type": "string" },
             "type": { "enum": ["nextflow", "snakemake", "conda"] },
             "version_pin": { "type": "string", "description": "container digest / commit hash / env lockfile ref" },
+            "env_management": { "type": "string" },
+            "container_pin": { "type": "string" },
             "params_file": { "type": "string" }
           },
           "additionalProperties": false

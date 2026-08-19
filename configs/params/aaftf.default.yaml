@@ -1,24 +1,35 @@
 # Canonical AAFTF parameter set
 # Reference for default_params in configs/tool_matrix.yaml (aaftf)
-# AAFTF is a shell (perl) workflow: trim -> filter -> assemble -> polish/annotate.
-# Exact keys are illustrative; align with your installed AAFTF version's options.
+# AAFTF is a shell/perl-style workflow (installed via pixi env): the adapter
+# runs `AAFTF pipeline` (trim -> mito -> filter -> assemble -> vecscreen ->
+# sourpurge -> rmdup -> polish -> sort -> assess) inside the pinned AAFTF SIF.
+# The SIF is built from adapters/aaftf/pixi.lock + the pinned AAFTF git commit
+# (see AAFTF repo build_sif.sh) and resolved at runtime (ADR-004).
 
 pipeline: aaftf
-trim:
-  adapter: "PENDING"          # adapter file packaged with AAFTF
-  # e.g. --lefttrim 25 --righttrim 25
-filter:
-  keep_contigs_gt: 500
-  # e.g. --minlength 500
-assemble:
-  tool: "spades"               # AAFTF default assembler for short reads
-  kmer_range: "21,33,55,77"
-polish:
-  rounds: 2
-  tool: "pilon"
-contamination_screen:
-  enabled: false               # AAFTF doesn't screen contamination by default
-  note: "Screening is handled by the external contamination-detection layer when benchmarking robustness."
 
+# resource request per run (RBAC'd by the harness job: 8 cpus / 32 GB benchmark label)
 threads: 8
-memory_gb: 64
+memory_gb: 32
+
+# reference databases
+aaftf_db: "/bigdata/stajichlab/shared/lib/AAFTF_DB"   # contam + UniVec + genbank-k31.lca.json
+# target phylum for the AAFTF sourpurge (sourmash LCA) contamination purge;
+# the adapter overrides this per dataset (folder_id prefix); AAFTF_PHYLUM env
+# wins over everything.
+phylum: ""
+
+# AAFTF pipeline runtime knobs (passed to `AAFTF pipeline`)
+trim:
+  minlen: 75                 # minimum read length after trimming (-ml)
+filter:
+  aligner: "bbduk"           # AAFTF filter --aligner inside `pipeline` is fixed to bbduk
+assemble:
+  tool: "spades"             # AAFTF default assembler for short reads (pipeline --method)
+  careful: true
+  kmer_max: 127
+polish:
+  tool: "pilon"
+  iterations: 1
+sort:
+  min_contig_len: 500        # -mc minimum contig length kept in final assembly

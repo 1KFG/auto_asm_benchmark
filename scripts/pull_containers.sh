@@ -32,9 +32,11 @@ cfg = yaml.safe_load(open(sys.argv[1]))
 rows = []
 for section in ("pipelines", "eval_tools", "sim_tools"):
     for t in cfg.get(section, []):
-        if t.get("type") in ("conda", "snakemake") and not t.get("execution", {}).get("source") == "external":
+        # pull any pinned container regardless of pipeline type; skip entries
+        # that declare no container_pin (conda/pixi-only or PENDING)
+        pin = t.get("execution", {}).get("container_pin") if section == "pipelines" else t.get("container_pin")
+        if not pin:
             continue
-        pin = t.get("execution", {}).get("container_pin", "PENDING") if section == "pipelines" else t.get("container_pin", "PENDING")
         rows.append((f"{section}:{t['id']}", str(pin)))
 for rid, pin in rows:
     print(f"{rid}\t{pin}")

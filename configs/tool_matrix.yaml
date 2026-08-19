@@ -7,12 +7,13 @@ schema_version: "1.0"
 pipelines:
   - id: aaftf
     name: "AAFTF"
-    description: "Assembly and Annotation For The Fungi; conda/pixi shell workflow."
+    description: "Assembly and Annotation For The Fungi; pixi/shell workflow run via `AAFTF pipeline` (trim -> mito -> filter -> assemble -> vecscreen -> sourpurge -> rmdup -> polish -> sort -> assess)."
     type: "conda"              # nextflow | snakemake | conda
     execution:
-      env_management: "pixi"     # AAFTF ships a pixi env; conda also supported
+      env_management: "pixi"     # AAFTF ships a pixi env; provisioned at runtime as the pinned SIF below
       env_pin: "adapters/aaftf/pixi.lock"   # AAFTF pixi.lock, 2026-08-18 (relocked: +fastqc,flye,racon,hifiasm,kraken2,gfatools)
-      executable: "aaftf.pl"
+      container_pin: "ghcr.io/stajichlab/aaftf@sha256:0c498d122b8fefceef5918e720d7b1c27bb8666a8ce6a3d172f83d316ac67864"   # same image nf_aaftf runs; == AAFTF dev0+ga136d93 pixi env
+      executable: "AAFTF"        # console_script from pixi env (AAFTF.AAFTF_main:main)
       adapter: "adapters/aaftf/run.sh"     # fixed contract wrapper
     pins: {}
     params:
@@ -29,11 +30,11 @@ pipelines:
     type: "nextflow"
     execution:
       source: "external"       # call external published workflow, DO NOT vendor
-      repo: "https://github.com/stajichlab/nf_aaftf"
-      commit: "03dfdd5393d8732fd5875ca4d4625a50a4bc436f"   # 2026-08-17
+      repo: "https://github.com/stajichlab/nf_AAFTF"
+      commit: "5fc8f691387c9ed6f025c7ee02d155a4f1581a29"   # 2026-08-18: fix aaaftf_db typo -> aaftf_db in FILTER/SOURPURGE/VECSCREEN
       revision: "main"
       env_management: "container"
-      container_pin: "ghcr.io/stajichlab/aaftf@sha256:f7fd8ed3b38f9ef86ddd8fdada703bab43e618b22ec95585f9b480d1911cceb4"   # rebuilt 2026-08-18 (+fastqc,flye,racon,hifiasm,kraken2, ncbi-fcs-gx 0.5.5)
+      container_pin: "ghcr.io/stajichlab/aaftf@sha256:0c498d122b8fefceef5918e720d7b1c27bb8666a8ce6a3d172f83d316ac67864"   # rebuilt 2026-08-18 (+fastqc,flye,racon,hifiasm,kraken2, ncbi-fcs-gx 0.5.5)
       executable: "main.nf"
       adapter: "adapters/nf_aaftf/run.sh"
       tools: ["aaftf", "fastp", "trimmomatic", "bbduk.sh", "spades.py", "megahit", "unicycler", "dipspades", "fcs_screen", "fcs_gx", "vecscreen", "sourpurge", "polca.sh", "pilon", "racon", "nextpolish", "bowtie2", "bwa", "minimap2"]
@@ -106,7 +107,7 @@ pipelines:
     description: "Illumina/DNBSEQ single-genome assembly with polishing. Representative short-read assembler."
     execution:
       env_management: "container"
-      container_pin: "ghcr.io/stajichlab/aaftf@sha256:f7fd8ed3b38f9ef86ddd8fdada703bab43e618b22ec95585f9b480d1911cceb4"   # unified AAFTF digest (2026-08-18 rebuild)
+      container_pin: "ghcr.io/stajichlab/aaftf@sha256:0c498d122b8fefceef5918e720d7b1c27bb8666a8ce6a3d172f83d316ac67864"   # unified AAFTF digest (2026-08-18 rebuild)
       executable: "spades.py"
       adapter: "adapters/spades_pipeline/run.sh"
       tools: ["spades", "pilon", "fastp", "fastqc"]
@@ -122,7 +123,7 @@ pipelines:
     description: "HiFi / Nanopore single-genome assembly (flye + racon/medaka + nextpolish)."
     execution:
       env_management: "container"
-      container_pin: "ghcr.io/stajichlab/aaftf@sha256:f7fd8ed3b38f9ef86ddd8fdada703bab43e618b22ec95585f9b480d1911cceb4"   # flye/racon step in AAFTF; medaka/nextpolish in separate biocontainers (see pins)
+      container_pin: "ghcr.io/stajichlab/aaftf@sha256:0c498d122b8fefceef5918e720d7b1c27bb8666a8ce6a3d172f83d316ac67864"   # flye/racon step in AAFTF; medaka/nextpolish in separate biocontainers (see pins)
       executable: "flye"
       adapter: "adapters/flye_pipeline/run.sh"
       tools: ["flye", "minimap2", "samtools", "racon", "medaka", "nextpolish"]
@@ -140,7 +141,7 @@ pipelines:
     description: "HiFi-only assembler with haplotype resolution (-1 for haploid, default for diploid)."
     execution:
       env_management: "container"
-      container_pin: "ghcr.io/stajichlab/aaftf@sha256:f7fd8ed3b38f9ef86ddd8fdada703bab43e618b22ec95585f9b480d1911cceb4"   # unified AAFTF digest (hifiasm 0.25.0)
+      container_pin: "ghcr.io/stajichlab/aaftf@sha256:0c498d122b8fefceef5918e720d7b1c27bb8666a8ce6a3d172f83d316ac67864"   # unified AAFTF digest (hifiasm 0.25.0)
       executable: "hifiasm"
       adapter: "adapters/hifiasm_pipeline/run.sh"
       tools: ["hifiasm", "gfa2fa", "samtools"]
@@ -156,7 +157,7 @@ pipelines:
     description: "Standard QC layer used as standalone pipeline: fastp/bbduk trim + Kraken2 screen + fastqc."
     execution:
       env_management: "container"
-      container_pin: "ghcr.io/stajichlab/aaftf@sha256:f7fd8ed3b38f9ef86ddd8fdada703bab43e618b22ec95585f9b480d1911cceb4"   # unified AAFTF digest (kraken2 2.17.1 + fastqc 0.12.1)
+      container_pin: "ghcr.io/stajichlab/aaftf@sha256:0c498d122b8fefceef5918e720d7b1c27bb8666a8ce6a3d172f83d316ac67864"   # unified AAFTF digest (kraken2 2.17.1 + fastqc 0.12.1)
       adapter: "adapters/qc_screen/run.sh"
       tools: ["fastp", "bbduk.sh", "fastqc", "kraken2", "kraken2-build"]
     pins: {}
@@ -199,7 +200,7 @@ eval_tools:
     notes: "NCBI assembly contamination screen — general (non-oracle) screen on produced assembly (av_screen_x)"
   - id: fcs-gx
     role: contamination_screen
-    container_pin: "ghcr.io/stajichlab/aaftf@sha256:f7fd8ed3b38f9ef86ddd8fdada703bab43e618b22ec95585f9b480d1911cceb4"   # ncbi-fcs-gx 0.5.5 (gx binary) inside AAFTF container
+    container_pin: "ghcr.io/stajichlab/aaftf@sha256:0c498d122b8fefceef5918e720d7b1c27bb8666a8ce6a3d172f83d316ac67864"   # ncbi-fcs-gx 0.5.5 (gx binary) inside AAFTF container
     version: "v0.5.5"
     databases:
       - { name: "NCBI FCS-GX gxdb", version: "v0.3.0-151-g9aad15db, build 2023-01-24" }   # /srv/projects/db/ncbi-fcs/0.5.0/gxdb
@@ -237,3 +238,5 @@ review_notes:
   - "sim_tools (art, badread) exist solely for the dataset generator; they do not participate in benchmarking or scoring."
   - "2026-08-18: AAFTF container rebuilt (ghcr.io/stajichlab/aaftf@sha256:f7fd8ed3...): added fastqc 0.12.1, flye 2.9.6 (py310), racon 1.5.0, hifiasm 0.25.0, kraken2 2.17.1 (+kraken2-build), gfatools 0.5.5 (provides gfa2fa); contains ncbi-fcs-gx 0.5.5 (gx binary). AAFTF --version -> 0.0.0.dev0+gf9d9adf. nf_aaftf + all four phase-1 pipelines + the fcs-gx eval tool now pin to this single digest."
   - "medaka (2.2.2) and nextpolish (1.4.1) are NOT in the AAFTF image; flye_pipeline runs them from separate quay.io/biocontainers digests (see flye_pipeline.pins). gfa2fa comes from gfatools 0.5.5 (in the AAFTF image); hifiasm_pipeline adapter uses 'gfatools gfa2fa'."
+  - "2026-08-18: AAFTF container rebuilt again (ghcr.io/stajichlab/aaftf@sha256:d467164b...) to fix /etc/profile.d/aaaftf.sh -> aaftf.sh AI-slop typo (AAFTF repo commit a6a7114). AAFTF --version -> 0.0.0.dev0+ga6a7114. Also fixed the matching aaaftf_db -> aaftf_db typo in nf_AAFTF's FILTER/SOURPURGE/VECSCREEN modules (nf_AAFTF commit 5fc8f69); the dual /opt/aaftf_db+/opt/aaaftf_db bind workaround in adapters/nf_aaftf is no longer needed and was dropped. All container_pin entries in this file updated to the new digest."
+  - "2026-08-18: AAFTF container rebuilt a third time (ghcr.io/stajichlab/aaftf@sha256:0c498d12...) for two source fixes, both found by running the real pipelines end-to-end on yarlip_sim_001: (1) `AAFTF pipeline`'s sourpurge/polish steps crashed on int/str type mismatches (commit 5f7b072); (2) `AAFTF trim --method bbduk` and `AAFTF filter --aligner bbduk` silently corrupted/truncated output on large paired FASTQ due to a PairStreamer bug in this image's bbduk 39.80 build -- worked around via the same shuffle.sh-interleave / bbduk interleaved=true / reformat.sh-deinterleave pattern nf_AAFTF's own TRIM module already used (commit a136d93). AAFTF --version -> 0.0.0.dev0+ga136d93. All container_pin entries updated to the new digest."
