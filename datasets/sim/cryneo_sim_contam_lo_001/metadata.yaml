@@ -26,7 +26,7 @@ subset:
 source_reads:
   type: simulated
   accessions: []
-  generator: PENDING
+  generator: 0.1.0
   seed: 20260810
 notes: 'ADR-015 cryneo_sim_contam_lo_001 (ADR-014 tier lo = 0.1%): HiFi with symbiont
   at 0.1% plus lambda at fixed 1%.'
@@ -43,8 +43,8 @@ generator:
   hifi_profile_id: ecoli_hifi
 files:
 - path: reads/cryneo_sim_contam_lo_001.fastq.gz
-  sha256: f89906d77f1d41f34cececeded087ee33633c7a5f2512186988aebc8e16a9a3a
-  size: 538543290
+  sha256: 012708061b3de63fb669191871e30fe9895effecb910bc6c46f2c1fd35ed3204
+  size: 538597599
 - path: refs/cryneo_sim_contam_lo_001.truth.fa
   sha256: 1b0018d6dc98790d8942ec4a008bd5b2b9ff337b8b6f76901c1a9bf79c6a47b3
   size: 19153849

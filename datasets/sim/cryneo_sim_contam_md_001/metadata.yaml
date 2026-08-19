@@ -26,7 +26,7 @@ subset:
 source_reads:
   type: simulated
   accessions: []
-  generator: PENDING
+  generator: 0.1.0
   seed: 20260811
 notes: 'Long-read contamination unit (ADR-015 cryneo_sim_contam_md_001): HiFi with
   symbiont at 1% plus lambda at fixed 1% per ADR-014. Tests whether long-read assemblers
@@ -44,8 +44,8 @@ generator:
   hifi_profile_id: ecoli_hifi
 files:
 - path: reads/cryneo_sim_contam_md_001.fastq.gz
-  sha256: d7b8069b8d251b09807d41801161ccd6d44e5c812e61431b0a222897491e37c7
-  size: 543644925
+  sha256: 676cf5ed5c15c36a2f1ab5a9b7fb1d679a15e089febc850f6599db55e6192d05
+  size: 543680566
 - path: refs/cryneo_sim_contam_md_001.truth.fa
   sha256: 1b0018d6dc98790d8942ec4a008bd5b2b9ff337b8b6f76901c1a9bf79c6a47b3
   size: 19153849
