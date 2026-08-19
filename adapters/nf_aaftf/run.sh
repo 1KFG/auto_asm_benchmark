@@ -177,6 +177,7 @@ echo "==> samples.csv: $(cat "${CSV}")"
 # BLASTN against UniVec + contaminant DBs, all inside the one container) is
 # nf_AAFTF's other documented vector-screening option and needs no nesting.
 START=$(date +%s)
+set +e
 (
   cd "${WORK_DIR}"
   ln -sf "${READS_DIR}" "${WORK_DIR}/reads"
@@ -191,6 +192,7 @@ START=$(date +%s)
     $( [ -n "${NF_AAFTF_RESUME:-}" ] && echo "-resume" )
 )
 NF_EXIT=$?
+set -e
 WALL_CLOCK_S=$(( $(date +%s) - START ))
 if [ ${NF_EXIT} -ne 0 ]; then
   echo "ERROR: nf_aaftf nextflow run failed (exit ${NF_EXIT})" >&2
