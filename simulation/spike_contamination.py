@@ -32,6 +32,38 @@ def count_bases(fastq):
     return n, length
 
 
+def selected_records_deduped(cont_recs, take_idx):
+    """Return (header, seq, plus, qual) for each index in take_idx, appending
+    "_repN" to the header of every repeat past the first when up-sampling
+    with replacement picks the same source read more than once.
+
+    take_idx must be sorted (both callers already sort it), so repeats of
+    the same index are adjacent and a running counter suffices -- no need
+    to pre-count occurrences across the whole list.
+
+    Without this, two reads with byte-identical headers/sequences land in
+    the output whenever a small contaminant genome (e.g. a 48kb phage,
+    ADR-014) can't produce enough distinct reads at depth to hit the
+    requested spike fraction. flye hard-errors on duplicate read IDs;
+    found regenerating cryneo_sim_contam_hi_001 after fixing the
+    cross-source collision in simulation/controller.py's vcat() -- that
+    fix cut ~1055 duplicate IDs down to ~287, all from this same-source
+    replacement-sampling case.
+    """
+    out = []
+    prev_idx = None
+    occurrence = 0
+    for i in take_idx:
+        occurrence = occurrence + 1 if i == prev_idx else 0
+        prev_idx = i
+        h, s, p, q = cont_recs[i]
+        if occurrence:
+            name, _, rest = h[1:].rstrip("\n").partition(" ")
+            h = f"@{name}_rep{occurrence}" + (f" {rest}\n" if rest else "\n")
+        out.append((h, s, p, q))
+    return out
+
+
 def read_records(fastq):
     with _open(fastq) as fh:
         for header in fh:
@@ -68,8 +100,7 @@ def sample_contaminant_reads(cont_fastq, out_fastq, host_bases, fraction, seed):
     else:
         take_idx = sorted(rng.sample(range(len(cont_recs)), n_take))
     out = _open_out(out_fastq)
-    for i in take_idx:
-        h, s, p, q = cont_recs[i]
+    for h, s, p, q in selected_records_deduped(cont_recs, take_idx):
         out.write(f"{h}{s}\n{p}\n{q}\n")
     out.close()
     return n_take, cont_n
@@ -88,7 +119,7 @@ def spike_fastq(host_fastq, cont_fastq, out_fastq, fraction, seed, separate=Fals
         take_idx = sorted(rng.sample(range(cont_n), n_take))
     else:
         take_idx = sorted(rng.choices(range(cont_n), k=n_take))
-    contaminant_selected = [cont_recs[i] for i in take_idx]
+    contaminant_selected = selected_records_deduped(cont_recs, take_idx)
 
     if separate:
         host_out = _open_out(str(out_fastq).replace(".fastq", ".host.fastq"))

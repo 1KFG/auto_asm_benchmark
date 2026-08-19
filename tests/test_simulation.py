@@ -181,6 +181,27 @@ class TestSpikeContamination(unittest.TestCase):
             self._assert_well_formed(str(out).replace(".fastq", ".host.fastq"), 2)
             self._assert_well_formed(str(out).replace(".fastq", ".contam.fastq"), 2)
 
+    def test_sample_contaminant_reads_dedupes_replacement_sampling(self):
+        """Regression: a small contaminant genome (e.g. a 48kb phage, ADR-014)
+        can't produce enough distinct reads at depth to hit a requested spike
+        fraction, so sampling deliberately up-samples WITH replacement -- but
+        without disambiguation the same read (same ID, same sequence) lands
+        in the output more than once. Found regenerating cryneo_sim_contam_hi
+        after fixing controller.py's cross-source vcat() collision, which cut
+        duplicate IDs from ~1055 to ~287 but didn't zero them out.
+        """
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            cont, out = d / "cont.fq", d / "out.fq"
+            # only 2 distinct contaminant reads available
+            cont.write_text(self.CONT)
+            # force n_take > pool size (host_bases huge relative to cont_bases)
+            n_take, cont_n = spk.sample_contaminant_reads(str(cont), str(out), 800, 1.0, 1)
+            self.assertGreater(n_take, cont_n)
+            self._assert_well_formed(out, n_take)
+            ids = Path(out).read_text().splitlines()[0::4]
+            self.assertEqual(len(ids), len(set(ids)), f"duplicate IDs in {ids}")
+
 
 class TestFastaRecords(unittest.TestCase):
     def test_wrapped_sequences(self):
