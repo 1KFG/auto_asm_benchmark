@@ -1,27 +1,21 @@
-# Canonical MpGAP param set
-# Matches fmalmeida/MpGAP inputs (pinned by commit hash in tool_matrix.yaml)
-# Assembly mode is selected per-run by profile/reference; shortest/consensus
-# behavior is dataset-dependent and set in the params map below.
+# Canonical MpGAP param set (fmalmeida/MpGAP, pinned by commit in tool_matrix.yaml)
+# MpGAP runs a YAML samplesheet through whichever assemblers apply to the
+# given read types (spades/shovill/unicycler/megahit for illumina-only,
+# canu/flye/raven/wtdbg2/shasta/hifiasm for long-read, more for hybrid) and
+# publishes each one -- it does NOT auto-pick a single "best" assembly the
+# way EGAP does. To keep our contract of one primary output per pipeline
+# run, and to give a clean single-assembler comparison point against the
+# other short-read pipelines here, the adapter skips every illumina
+# assembler except spades by default.
 pipeline: mpgap
 
-reads:
-  - "PENDING"        # samplesheet.yml / input yml per MpGAP --input schema
-
 params:
-  outdir: "results"
-  mode: "auto"       # auto | sreads | lreads | hybrid (decided from dataset tech at real run)
-  max_cpus: 16
-  max_memory: "64.GB"
-  min_read_length: 500
-  estimated_genome_size: null
+  organism: "fungus"     # bacteria | eukaryote | fungus -- changes QUAST/BUSCO gene-finding mode
+  max_cpus: 8
+  max_memory: "32.GB"
 
 assemble:
-  tool: null          # null = MpGAP auto-selects by mode
-  kmer: null
-
-polish:
-  enabled: true
-  rounds: 2
+  enable: ["spades"]     # subset of: spades, shovill, unicycler, megahit (illumina-only)
 
 databases:
   busco_lineage: "fungi_odb10"
