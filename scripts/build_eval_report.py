@@ -68,7 +68,11 @@ NF_SPOTCHECKS = ["canaur_sim_contam_hi_001", "zymtri_sim_chr1_001"]
 for ds in NF_SPOTCHECKS:
     RUNS.append(("nf_aaftf", ds, str(BATCH_DIR / f"nf_{ds}"),
                  REPO_ROOT / f"datasets/sim/{ds}/refs/{ds}.truth.fa"))
-NF_SLURM_SWEEP = ["canaur_sim_all_001", "canaur_sim_degrad_001", "canaur_sim_mix_001"]
+NF_SLURM_SWEEP = [
+    "canaur_sim_all_001", "canaur_sim_degrad_001", "canaur_sim_mix_001",
+    "canaur_sim_adapter_001", "canaur_sim_carryover_001",
+    "canaur_sim_contam_lo_001", "canaur_sim_contam_md_001",
+]
 for ds in NF_SLURM_SWEEP:
     RUNS.append(("nf_aaftf", ds, str(REPO_ROOT / f"results/adhoc/nf_aaftf/{ds}"),
                  REPO_ROOT / f"datasets/sim/{ds}/refs/{ds}.truth.fa"))
@@ -295,11 +299,13 @@ def write_report(rows, figs_by_tech):
         "- `cryneo_sim_contam_hi_001` runs (`hifiasm_pipeline`, `flye_pipeline`) were validated "
         "before the read-ID-collision simulator fix (see git history); results are unaffected "
         "since both adapters either tolerate or work around the collision.\n"
-        "- `nf_aaftf` wall-clock on `canaur_sim_all_001`/`degrad_001`/`mix_001` (~31,000s, vs. "
-        "~2,400-2,900s for every other `nf_aaftf` run) reflects account-wide SLURM queue "
-        "congestion from unrelated jobs during that sweep, not a real pipeline slowdown -- "
-        "treat those three wall-clock values as unreliable; assembly-quality metrics for them "
-        "are unaffected.\n"
+        "- `nf_aaftf` wall-clock on 7 of the 8 `canaur_sim_*` datasets (~31,000-51,500s, vs. "
+        "~2,400-2,900s for `yarlip_sim_001`/`canaur_sim_contam_hi_001`) reflects account-wide "
+        "SLURM queue congestion from unrelated jobs during that sweep -- `nf_aaftf` submits "
+        "each pipeline stage as its own SLURM sub-job, so those sub-jobs queued behind "
+        "hundreds of pending jobs from other work on the account. Not a real pipeline "
+        "slowdown; treat those wall-clock values as unreliable. Assembly-quality metrics "
+        "for them are unaffected.\n"
         "- All runs used real containerized tools against real (not placeholder) simulated read "
         "data; none of these numbers are smoke-test placeholders.\n"
     )
