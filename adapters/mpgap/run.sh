@@ -15,6 +15,16 @@
 #   exit codes: 0=success, 10=partial, nonzero=failure
 set -euo pipefail
 
+# MpGAP's pinned commit's nextflow.config wraps includeConfig in a bare
+# try/catch block (for optional nf-core custom-config loading) -- valid
+# Groovy in older Nextflow config parsers, but rejected outright by modern
+# ones ("Try-catch blocks cannot be mixed with config statements"). Verified
+# nextflow/23.10.4 parses it fine; the cluster default (26.04.6) does not.
+# Pin an older nextflow just for this adapter rather than touch the
+# cluster-wide default or fork the external repo.
+source /etc/profile.d/modules.sh 2>/dev/null || true
+module load nextflow/23.10.4 2>/dev/null || true
+
 echo "==> MpGAP adapter: dataset=$BENCH_DATASET_DIR out=$BENCH_OUTDIR smoke=${BENCH_SMOKE:-0}"
 
 DATASET_ID="${BENCH_DATASET_DIR##*/}"

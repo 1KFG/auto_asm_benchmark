@@ -188,7 +188,7 @@ echo "==> EGAP: cpus=${CPUS} ram=${RAM_GB}GB kingdom=${KINGDOM} busco=${BUSCO1}/
 START=$(date +%s)
 EGAP_OUT="${WORK_DIR}/egap_out"
 set +e
-singularity exec "${EGAP_SIF}" EGAP \
+singularity exec --writable-tmpfs "${EGAP_SIF}" EGAP \
   --input_csv "${CSV}" --output_dir "${EGAP_OUT}" \
   --cpu_threads "${CPUS}" --ram_gb "${RAM_GB}" \
   $( [ "${EGAP_DRY_RUN:-false}" = "true" ] && echo --dry_run ) \
