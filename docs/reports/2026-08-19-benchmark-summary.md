@@ -54,6 +54,7 @@ Timing, assembly quality, and truth-genome accuracy for every pipeline validated
 | aaftf | canaur_sim_mix_001 | 2301 | 73 | 12,009,866 | 636,519 | 99.57 | 7/7 |
 | nf_aaftf | canaur_sim_mix_001 | 31147 | 39 | 12,016,674 | 596,610 | 99.46 | 7/7 |
 | aaftf | yarlip_sim_001 | 4356 | 149 | 20,233,494 | 284,329 | 99.11 | 6/6 |
+| egap | yarlip_sim_001 | 12245 | 83 | 20,669,273 | 556,416 | 99.43 | 6/6 |
 | mpgap | yarlip_sim_001 | 5570 | 410 | 20,287,178 | 411,068 | 99.38 | 6/6 |
 | nf_aaftf | yarlip_sim_001 | 2408 | 126 | 20,240,007 | 277,510 | 99.01 | 6/6 |
 | shovill_pipeline | yarlip_sim_001 | 1509 | 704 | 20,257,849 | 49,020 | 98.93 | 6/6 |

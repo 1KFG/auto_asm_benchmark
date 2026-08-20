@@ -52,6 +52,9 @@ RUNS = [
     ("shovill_pipeline", "yarlip_sim_001",
      str(REPO_ROOT / "results/adhoc/shovill_pipeline/yarlip_sim_001"),
      REPO_ROOT / "datasets/sim/yarlip_sim_001/refs/yarlip_sim_001.truth.fa"),
+    ("egap", "yarlip_sim_001",
+     str(REPO_ROOT / "results/adhoc/egap/yarlip_sim_001"),
+     REPO_ROOT / "datasets/sim/yarlip_sim_001/refs/yarlip_sim_001.truth.fa"),
 ]
 # canaur/zymtri direct-aaftf batch: same truth genome (canaur) for all 8,
 # zymtri its own. Read from the batch summary + per-dataset manifests.
